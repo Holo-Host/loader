@@ -3,10 +3,11 @@ setTimeout(function(){
     console.log("sending WWW address to DNA hash resolver");
     setTimeout(function(){
         console.log("received DNA hash from resolver");
+        // load next script
+        console.log("loading hololoader");
         let fileref = document.createElement('script');
         fileref.setAttribute("type","text/javascript");
-        fileref.setAttribute("src", "holo/holo.js");
+        fileref.setAttribute("src", "/holo/holo.js");
         document.getElementsByTagName("head")[0].appendChild(fileref);
-        console.log("loading hololoader");
     }, 1000);
 }, 1000);
