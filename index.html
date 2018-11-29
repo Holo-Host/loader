@@ -5,10 +5,13 @@
 		<script src="hololoader/hololoader.js"></script>
 		-->
 		<script>
-		let fileref = document.createElement('script');
-		fileref.setAttribute("type","text/javascript");
-		fileref.setAttribute("src", "hololoader/hololoader.js");
-		document.getElementsByTagName("head")[0].appendChild(fileref);
+		setTimeout(function(){
+			let fileref = document.createElement('script');
+			fileref.setAttribute("type","text/javascript");
+			fileref.setAttribute("src", "hololoader/hololoader.js");
+			document.getElementsByTagName("head")[0].appendChild(fileref);
+			console.log("loading hololoader");
+	    }, 3000);
 		</script>
 	</head>
 	<body></body>
