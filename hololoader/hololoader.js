@@ -1,7 +1,7 @@
 console.log('hololoader.js');
-setInterval(function(){
+setTimeout(function(){
     console.log("sending WWW address to DNA hash resolver");
-}, 1000);
-setInterval(function(){
-    console.log("received DNA hash from resolver");
+    setTimeout(function(){
+        console.log("received DNA hash from resolver");
+    }, 1000);
 }, 1000);
