@@ -4,7 +4,7 @@ setTimeout(function(){
     setTimeout(function(){
         console.log("received DNA hash from resolver");
         // load next script
-        console.log("loading hololoader");
+        console.log("loading holo.js");
         let fileref = document.createElement('script');
         fileref.setAttribute("type","text/javascript");
         fileref.setAttribute("src", "/holo/holo.js");
