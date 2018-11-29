@@ -4,4 +4,4 @@ setTimeout(function(){
     setTimeout(function(){
         console.log("received tranche of IPs from resolver");
     }, 1000);
-}, 3000);
+}, 1000);
