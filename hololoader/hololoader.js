@@ -1,4 +1,3 @@
-
 const loadAndReplace = url => {
   fetch(url)
     .then(r => r.text())
