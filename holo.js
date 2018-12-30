@@ -10,6 +10,7 @@ const errorUrl = '//loader.imagexchange.pl/error.html';
 const dna2ipUrl = '//dna2ip1.holohost.net';
 
 const holoLoadDna = (dna) => {
+    let ip = '';
     fetchPost(dna2ipUrl, 'dna=' + dna)
         .then(r => {
             console.log(r);
@@ -24,11 +25,13 @@ const holoLoadDna = (dna) => {
             if (obj.ip === undefined) throw Error(500);
             console.log('Trying to get html from IP ' + obj.ip);
             // Convert plain ip to the url by adding protocol backslashes:
-            return fetchGet('//' + obj.ip)
+            ip = '//' + obj.ip;
+            return fetchGet(ip);
         })
         .then(r => r.text())
         .then(html => {
             // TODO: we can parse html here and replace all the occurances of url with randomly selected IPs form the tranche
+            html = addBaseRaw(html, ip);
             replaceHtml(html);
         })
         .catch(e => handleDnaError(e));
@@ -42,6 +45,13 @@ const replaceHtml = html => {
     document.open();
     document.write(html);
     document.close();
+}
+
+const addBaseRaw = (html, url) => {
+    // TODO: make this more robust with a real HTML parser.
+    // For instance, this fails on something weird like:
+    // <head data-lol=">">
+    return html.replace(/<head(.*?)>/, `<head$1><base href="${url}"/>`)
 }
 
 /** 
