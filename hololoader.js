@@ -26,7 +26,9 @@ window.onload = function() {
         })
         .then(obj => {
             if (obj.dna === undefined) throw Error(500);
-            holoLoadDna(obj.dna);
+
+            // Convert plain ip to the url by adding protocol backslashes:
+            holoLoadDna('//' + obj.dna);
         })
         .catch(e => handleDnaError(e));
 }
