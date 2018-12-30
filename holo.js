@@ -4,16 +4,30 @@
  * On error redirects to Error page
  */
 
-const errorUrl = 'https://error.holohost.net';
-const dna2ipUrl = 'https://dna2ip.holohost.net';
+const errorUrl = '//loader.imagexchange.pl/error.html';
+const dna2ipUrl = '//dna2ip1.holohost.net';
 
 const holoLoadDna = (dna) => {
-    myFetch(dna2ipUrl, dna)
-        .then(ip => {
-            return myFetch(ip)
+    fetchPost(dna2ipUrl, {'dna': dna})
+        .then(r => {
+            console.log(r);
+            // Check response code
+            if (!r.ok) {
+                throw Error(r.status);
+            }
+            
+            return r.json();
         })
-        .then(html => replaceHtml(html))
-        .catch(e => handleError(e))
+        .then(obj => {
+            if (obj.ip === undefined) throw Error(500);
+            console.log('Trying to get html from IP ' + obj.ip);
+            return fetchGet(obj.ip)
+        })
+        .then(r => r.text())
+        .then(html => {
+            replaceHtml(html);
+        })
+        .catch(e => handleDnaError(e));
 }
 
 /** 
