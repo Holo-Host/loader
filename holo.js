@@ -21,7 +21,8 @@ const holoLoadDna = (dna) => {
         .then(obj => {
             if (obj.ip === undefined) throw Error(500);
             console.log('Trying to get html from IP ' + obj.ip);
-            return fetchGet(obj.ip)
+            // Convert plain ip to the url by adding protocol backslashes:
+            return fetchGet('//' + obj.ip)
         })
         .then(r => r.text())
         .then(html => {
