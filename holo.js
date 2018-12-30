@@ -2,6 +2,8 @@
  * Holo.js
  * Calls dna2ip, then makes a call to this IP and replaces dom in passed element
  * On error redirects to Error page
+ * VERY IMPORTANT: any server called for html with fetchGet() needs to return content 
+ * with headers Access-Control-Allow-Origin: *, otherwise CORS will block entire call!!!
  */
 
 const errorUrl = '//loader.imagexchange.pl/error.html';
@@ -26,6 +28,7 @@ const holoLoadDna = (dna) => {
         })
         .then(r => r.text())
         .then(html => {
+            // TODO: we can parse html here and replace all the occurances of url with randomly selected IPs form the tranche
             replaceHtml(html);
         })
         .catch(e => handleDnaError(e));
