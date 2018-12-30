@@ -8,7 +8,7 @@ const errorUrl = '//loader.imagexchange.pl/error.html';
 const dna2ipUrl = '//dna2ip1.holohost.net';
 
 const holoLoadDna = (dna) => {
-    fetchPost(dna2ipUrl, {'dna': dna})
+    fetchPost(dna2ipUrl, 'dna=' + dna)
         .then(r => {
             console.log(r);
             // Check response code

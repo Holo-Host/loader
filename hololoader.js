@@ -10,9 +10,7 @@ const dnaErrorUrl = '//loader.imagexchange.pl/error.html';
 // Get location from url
 // TODO: clean up url to the format accepted by worker
 // TODO: extract any locaiton or query string parameters?
-const data = {
-    url: window.location.hostname
-};
+const data = 'url=' + window.location.hostname;
 console.log(data);
 
 window.onload = function() {
@@ -41,14 +39,15 @@ const handleDnaError = (errorCode) => {
     window.location.href = dnaErrorUrl + '?errorCode=' + errorCode;
 }
 
-// fetch wrapper for POST request with Content-Type: "application/json"
+// fetch wrapper for POST request with Content-Type: "application/x-www-form-urlencoded"
+// We have to send this type of content because of CORS bs: "https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS#Simple_requests"
 const fetchPost = (url = '', data = {}) => {
     return fetch(url, {
         method: "POST",
         cache: "no-cache",
         //mode: "no-cors", can't use this mode, because response I won't be able to access response body via js
         headers: {
-            "Content-Type": "application/json",
+            "Content-Type": "application/x-www-form-urlencoded",
         },
         body: data
     });
