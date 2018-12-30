@@ -8,7 +8,6 @@ const url2dnaUrl = '//dns2dna1.holohost.net';
 const dnaErrorUrl = '//loader.imagexchange.pl/error.html';
 
 // Get location from url
-// TODO: clean up url to the format accepted by worker
 // TODO: extract any locaiton or query string parameters?
 const data = 'url=' + window.location.hostname;
 console.log(data);
@@ -26,14 +25,13 @@ window.onload = function() {
         })
         .then(obj => {
             if (obj.dna === undefined) throw Error(500);
-
-            // Convert plain ip to the url by adding protocol backslashes:
-            holoLoadDna('//' + obj.dna);
+            holoLoadDna(obj.dna);
         })
         .catch(e => handleDnaError(e));
 }
 
 /**
+ *  TODO: while throwing error pass errorCode so that it's readible by handleDnaError
  *  TODO: display type of error to user based on result from dna2ip
  */
 const handleDnaError = (errorCode) => {
