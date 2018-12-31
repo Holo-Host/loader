@@ -15,10 +15,9 @@ window.onload = function() {
 
     // If worker passed IP succesfuly then proceed
     if (responseObject.success && responseObject.ip && responseObject.ip[0]) {
-        fetch(responseObject.ip[0], {
-            method: "GET",
-            cache: "no-cache"
-        })
+        // Select which IP am I connecting - now trivial
+        const ip = responseObject.ip[0];
+        fetch('http://' + ip)
         .then(r => r.text())
         .then(html => {
             html = addBaseRaw(html, ip);
@@ -44,10 +43,10 @@ const handleError = (e) => {
 
     if (typeof e !== undefined && e.code && e.text) {
         console.log('Received error from Cloudflare worker: ' + e.code + ': ' + e.text);
-        //window.location.href = errorUrl + '?errorCode=' + e.code + '&errorText=' + encodeURI(e.text);
+        window.location.href = errorUrl + '?errorCode=' + e.code + '&errorText=' + encodeURI(e.text);
     } else {
         console.log('Received unknown error from Cloudflare');
-        //window.location.href = errorUrl;
+        window.location.href = errorUrl;
     }
 }
 
