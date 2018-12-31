@@ -1,62 +1,71 @@
 /** 
-    HoloLoader.js
-    Calls url2dna service and passes dna to Holo.js
-*/
-
-// url2dna - service worker resolving url to DNA hash of the hApp
-const url2dnaUrl = '//dns2dna1.holohost.net';
-const dnaErrorUrl = '//loader1.holohost.net/error.html';
-
-// Get location from url
-// TODO: extract any locaiton or query string parameters?
-const data = 'url=' + window.location.hostname;
-console.log(data);
+ * HoloLoader.js
+ * Takes responseObject injected into html by Cloudflare service worker and replaces page content
+ * with the code received from holo Port
+ */
 
 window.onload = function() {
-    fetchPost(url2dnaUrl, data)
-        .then(r => {
-            console.log(r);
-            // Check response code
-            if (!r.ok) {
-                throw Error(r.status);
-            }
-            
-            return r.json();
+    // Check if responseObject made it from Cloudflare worker into html
+    if (typeof responseObject === undefined || typeof responseObject !== 'object' || responseObject === null) {
+        console.log('Missing responseObject');
+        return;
+    }
+
+    // If worker passed IP succesfuly then proceed
+    if (responseObject.success && responseObject.ip && responseObject.ip[0]) {
+        fetch(responseObject.ip[0], {
+            method: "GET",
+            cache: "no-cache"
         })
-        .then(obj => {
-            if (obj.dna === undefined) throw Error(500);
-            holoLoadDna(obj.dna);
+        .then(r => r.text())
+        .then(html => {
+            html = addBaseRaw(html, ip);
+            replaceHtml(html);
         })
-        .catch(e => handleDnaError(e));
+        .catch(e => handleError({
+            code: 500,
+            text: e
+        }));
+
+        return true;
+    }
+
+    // If still here then handle error
+    handleError(responseObject.error);
 }
 
 /**
- *  TODO: while throwing error pass errorCode so that it's readible by handleDnaError
- *  TODO: display type of error to user based on result from dna2ip
+ *  Redirect to error page and pass error info if available
  */
-const handleDnaError = (errorCode) => {
-    console.log(errorCode);
-    window.location.href = dnaErrorUrl + '?errorCode=' + errorCode;
+const handleError = (e) => {
+    const errorUrl = '//loader1.holohost.net/error.html';
+
+    if (typeof e !== undefined && e.code && e.text) {
+        console.log('Received error from Cloudflare worker: ' + e.code + ': ' + e.text);
+        window.location.href = errorUrl + '?errorCode=' + e.code + '&errorText=' + encodeURI(e.text);
+    } else {
+        console.log('Received unknown error from Cloudflare');
+        window.location.href = errorUrl;
+    }
 }
 
-// fetch wrapper for POST request with Content-Type: "application/x-www-form-urlencoded"
-// We have to send this type of content because of CORS bs: "https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS#Simple_requests"
-const fetchPost = (url = '', data = {}) => {
-    return fetch(url, {
-        method: "POST",
-        cache: "no-cache",
-        //mode: "no-cors", can't use this mode, because response I won't be able to access response body via js
-        headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-        },
-        body: data
-    });
+/** 
+ * Replace entire html of the page
+ * @param {string} html New html to replace the old one
+ */
+const replaceHtml = html => {
+    document.open();
+    document.write(html);
+    document.close();
 }
 
-// fetch wrapper for GET
-const fetchGet = (url = '') => {
-    return fetch(url, {
-        method: "GET",
-        cache: "no-cache"
-    });
+/** 
+ * Replace entire html of the page
+ * @param {string} html New html to replace the old one
+ */
+const addBaseRaw = (html, url) => {
+    // TODO: make this more robust with a real HTML parser.
+    // For instance, this fails on something weird like:
+    // <head data-lol=">">
+    return html.replace(/<head(.*?)>/, `<head$1><base href="${url}"/>`)
 }
