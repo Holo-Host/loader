@@ -6,7 +6,7 @@
 
 window.onload = function() {
     // Check if responseObject made it from Cloudflare worker into html
-    if (typeof responseObject === undefined || typeof responseObject !== 'object' || responseObject === null) {
+    if (typeof responseObject === 'undefined' || typeof responseObject !== 'object' || responseObject === null) {
         console.log('Missing responseObject');
         return;
     }
@@ -41,7 +41,7 @@ window.onload = function() {
 const handleError = (e) => {
     const errorUrl = '//loader1.holohost.net/error.html';
 
-    if (typeof e !== undefined && e.code && e.text) {
+    if (typeof e !== 'undefined' && e.code && e.text) {
         console.log('Received error from Cloudflare worker: ' + e.code + ': ' + e.text);
         window.location.href = errorUrl + '?errorCode=' + e.code + '&errorText=' + encodeURI(e.text);
     } else {
