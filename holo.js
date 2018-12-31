@@ -6,7 +6,7 @@
  * with headers Access-Control-Allow-Origin: *, otherwise CORS will block entire call!!!
  */
 
-const errorUrl = '//loader.imagexchange.pl/error.html';
+const errorUrl = '//loader1.holohost.net/error.html';
 const dna2ipUrl = '//dna2ip1.holohost.net';
 
 const holoLoadDna = (dna) => {

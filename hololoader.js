@@ -5,7 +5,7 @@
 
 // url2dna - service worker resolving url to DNA hash of the hApp
 const url2dnaUrl = '//dns2dna1.holohost.net';
-const dnaErrorUrl = '//loader.imagexchange.pl/error.html';
+const dnaErrorUrl = '//loader1.holohost.net/error.html';
 
 // Get location from url
 // TODO: extract any locaiton or query string parameters?

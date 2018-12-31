@@ -14,7 +14,8 @@ addEventListener('fetch', event => {
   
     // Let's fake some KV store access here
     const KVstore = {
-      "QmImagexchangeDNAhash": "35.173.196.129"
+      "QmArtflouHash": "35.173.196.129",
+      "QmSimpleHappHash": "3.85.69.42:4141"
     };
   
     // Wrap code in try/catch block to return error stack in the response body
