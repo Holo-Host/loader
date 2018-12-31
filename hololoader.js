@@ -11,6 +11,8 @@ window.onload = function() {
         return;
     }
 
+    console.log(responseObject);
+
     // If worker passed IP succesfuly then proceed
     if (responseObject.success && responseObject.ip && responseObject.ip[0]) {
         fetch(responseObject.ip[0], {
