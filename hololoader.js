@@ -44,10 +44,10 @@ const handleError = (e) => {
 
     if (typeof e !== undefined && e.code && e.text) {
         console.log('Received error from Cloudflare worker: ' + e.code + ': ' + e.text);
-        window.location.href = errorUrl + '?errorCode=' + e.code + '&errorText=' + encodeURI(e.text);
+        //window.location.href = errorUrl + '?errorCode=' + e.code + '&errorText=' + encodeURI(e.text);
     } else {
         console.log('Received unknown error from Cloudflare');
-        window.location.href = errorUrl;
+        //window.location.href = errorUrl;
     }
 }
 
