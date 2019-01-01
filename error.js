@@ -13,6 +13,6 @@ window.onload = function() {
 
     console.log(qs);
 
-    if (qs.errorCode) document.getElementById("errorLongDescCode").innerHTML(qs.errorCode);
-    if (qs.errorText) document.getElementById("errorLongDescText").innerHTML(qs.errorText);
+    if (qs.errorCode) document.getElementById("errorLongDescCode").innerHTML = qs.errorCode;
+    if (qs.errorText) document.getElementById("errorLongDescText").innerHTML = qs.errorText;
 }

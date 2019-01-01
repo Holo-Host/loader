@@ -69,8 +69,9 @@ const replaceHtml = html => {
 }
 
 /** 
- * Replace entire html of the page
- * @param {string} html New html to replace the old one
+ * Add <base> tag that defines host for relative urls on page
+ * @param {string} html Html to add tag to
+ * @param {string} url hostname (with protocol and port, e.g. //test.holo.host:4141")
  */
 const addBaseRaw = (html, url) => {
     // TODO: make this more robust with a real HTML parser.
