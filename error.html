@@ -1,20 +1,39 @@
 <!doctype html>
 
 <html lang="en">
-    <head>
-        <meta charset="utf-8">
 
-        <title>Holo Error</title>
-        <meta name="description" content="Holo Error">
-        <meta name="author" content="Holo">
-    
-    </head>
+<head>
+    <meta charset="utf-8">
 
-    <body>
-        <div>Oops, this is an error page.</div>
-    </body>
-    
-    <script>
-        // TODO: Make sure to specify the reason why we are here
-    </script>
+    <title>Holo Error</title>
+    <meta name="description" content="Holo Error">
+    <meta name="author" content="Holo">
+    <link rel="stylesheet" href="error.css" type="text/css" media="all" />
+    <script src="error.js"></script>
+
+</head>
+
+<body dir="ltr" class="illustrated dnsNotFound neterror">
+    <div id="errorPageContainer" class="container">
+        <div id="text-container">
+            <div class="title">
+                <h1 class="title-text">Oops. Something definitely went wrong.</h1>
+            </div>
+
+            <div id="errorLongContent">
+
+                <div id="errorShortDesc">
+                    <p id="errorShortDescText">Holo network responded with an error </p>
+                </div>
+                <div id="errorLongDesc">
+                    <p><span id="errorLongDescCode">500</span><span id="errorLongDescText">Cloudflare worker error</span></p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</body>
+
+
+
 </html>

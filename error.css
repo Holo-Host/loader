@@ -1,0 +1,126 @@
+
+
+ 
+ body {
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    min-height: 100vh;
+    align-items: center;
+    justify-content: center;
+   background-size: 64px 32px;
+   background-repeat: repeat-x;
+   padding: 0;
+   background-color: #f9f9fa;
+   min-width: 13em;
+   font-family: Helvetica Neue, Verdana, Geneva, Tahoma, sans-serif;
+ }
+ 
+ @media only screen and (max-width: 959px) {
+   .title {
+     background-image: none !important;
+     padding-inline-start: 0;
+     margin-inline-start: 0;
+   }
+ 
+   .title-text {
+     padding-top: 0;
+   }
+ }
+ 
+ @media only screen and (max-width: 640px) {
+   body {
+     padding: 0 75px;
+   }
+ 
+   .title-text {
+     padding-bottom: 0;
+     border-bottom: none;
+   }
+ }
+ 
+ /* For small window height, shift the stripes up by 10px.
+  * We could just change the background size, but that changes
+  * the angle of the stripes so just shifting up is easier. */
+ @media only screen and (max-height: 480px) {
+   body {
+     background-position: 10px -10px;
+     padding-top: 38px;
+     /* We get rid of bottom padding for width < 640px, but
+      * for height < 480px a bit of space between the content
+      * and the viewport edge is nice. */
+     padding-bottom: 38px;
+   }
+ }
+
+ #errorContainer {
+   display: none;
+ }
+ 
+ 
+ #prefChangeContainer {
+   display: none;
+ }
+ 
+ #learnMoreContainer {
+   display: none;
+ }
+ 
+ 
+ span#hostname {
+   font-weight: bold;
+ }
+ 
+ #automaticallyReportInFuture {
+   cursor: pointer;
+ }
+ 
+ .illustrated #errorPageContainer {
+   min-height: 300px;
+   display: flex;
+   flex-direction: column;
+   background-position: left center;
+ }
+ 
+ .illustrated[dir="rtl"] #errorPageContainer {
+   background-position: right center;
+ }
+ 
+ .illustrated .title {
+   background: none;
+   padding-inline-start: 0;
+   margin-inline-start: 0;
+ }
+ 
+ .illustrated #text-container {
+   margin: auto;
+   padding-inline-start: 38%;
+ }
+ 
+ .illustrated #errorPageContainer {
+   background-repeat: no-repeat;
+   background-size: 38%;
+   background-image: url("error-connection-failure.svg");
+ }
+
+ h1 {
+    font-size: 2.5em;
+    font-weight: lighter;
+    line-height: 1.2;
+    margin: 0;
+    margin-bottom: .5em;
+ }
+
+ #errorLongDescCode {
+    font-size: 1.6em;
+    font-weight: 200;
+ }
+
+ #errorLongDescCode::after {
+     content: ""
+ }
+
+ #errorLongDescText {
+    margin-left: 1em;
+    font-weight: 300;
+ }
