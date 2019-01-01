@@ -55,7 +55,7 @@ const handleError = (e) => {
         }
     }
 
-    window.location.href = errorUrl + '?errorCode=' + e.code + '&errorText=' + encodeURI(e.text);
+    // window.location.href = errorUrl + '?errorCode=' + e.code + '&errorText=' + encodeURI(e.text);
 }
 
 /** 

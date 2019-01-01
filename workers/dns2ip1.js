@@ -71,6 +71,6 @@ const resolveUrl = url => {
 const addScriptToHtml = (html, scriptContent) => {
     // TODO: make this more robust with a real HTML parser.
     // For instance, this fails on something weird like:
-    // <head data-lol=">">
-    return html.replace(/<\/html>/, `<script>${scriptContent}</script><head>`)
+    // <html data-lol=">">
+    return html.replace(/<\/html>/, `<script>${scriptContent}</script></html>`)
 }
