@@ -23,31 +23,28 @@ const dna2ip = {
  * @param {Request} request
  */
 async function handleRequest(request) {
-    console.log(request);
     let responseObj = {};
     let responseStatus = 500;
 
     // Wrap code in try/catch block to return error stack in the response body
     try {
         // Check request parameters first
-        if (request.headers.get("Content-Type") !== 'application/x-www-form-urlencoded' || request.method.toLowerCase() !== 'post') {
+        if (request.method.toLowerCase() !== 'post') {
             responseStatus = 400;
+        } else if (request.headers.get("Content-Type") !== 'application/x-www-form-urlencoded') {
+            responseStatus = 415;
         } else {
             const data = await request.formData();
             const requestObj = {
                 dna: data.get('dna'),
                 url: data.get('url')
             }
-            console.log(requestObj);
 
-            if ( 
-                (typeof requestObj.dna === 'undefined' || requestObj.dna === "") &&
-                (typeof requestObj.url === 'undefined' || requestObj.url === "")
-            ) {
+            if (!requestObj.dna && !requestObj.url) {
                 responseStatus = 400;
             } else {
                 // If dna was not passed then find it in the KV store
-                if (typeof requestObj.dna === 'undefined' || requestObj.dna === "") {
+                if (!requestObj.dna) {
                     // Search in KV store for url.
                     responseObj.dna = url2dna[requestObj.url];
                 }

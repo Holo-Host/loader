@@ -14,8 +14,8 @@ const initHapp = url => {
         .then(ip => fetchHappContent(ip))
         .then(html => replaceHtml(html, ip))
         .catch(e => handleError({
-            code: 500,
-            text: e
+            code: e.code || 500,
+            text: e.text || "Unknown error"
         }));
     }
 
@@ -38,7 +38,7 @@ const queryForHosts = (url = "", dna = "") => {
             headers: {
                 "Content-Type": "application/x-www-form-urlencoded",
             },
-            body: {url,dna}
+            body: 'url=' + encodeURIComponent(url) + '&dna=' + encodeURIComponent(dna)
         })
         .then(r => r.json());
 }
@@ -46,7 +46,7 @@ const queryForHosts = (url = "", dna = "") => {
 /**
  * Process response from the workers - for now trivialy just select first IP from array
  * TODO: Make it much more sophisticated, including saving entire tranche for future calls
- * TODO: Move all the response statuses to worker and here only translate them into text
+ * TODO: Move all the response statuses to worker and here only translate them into text https://tools.ietf.org/html/rfc7231#section-6
  * @param {Object} obj Response from url2ip worker
  * @param {array} obj.ips Array of ips (or FQDNs) of HoloPorts serving given hApp
  * @param {string} obj.dna Hash of a DNA of requested hApp
@@ -56,20 +56,20 @@ const processWorkerResponse = obj => {
     // TODO: save it in some private variable and write a getter
     const dna = obj.dna;
     if (typeof dna !== 'string' || dna === "") {
-        handleError({
+        throw {
             code: 404,
             text: 'There\'s no hApp registered at this address. Possible reason - hApp was registered less than 24h ago and data has not migrated yet.'
-        });
-        return;
+        };
     }
 
     // Extract an IP that we want to grab
     // TODO: save it in some private variable and write a getter
-    if (typeof ips !== 'array' || ips.length === 0 || ip[0] === "") {
-        handleError({
+    const ips = obj.ips;
+    if (typeof ips !== 'array' || ips.length === 0 || ips[0] === "") {
+        throw {
             code: 503,
             text: 'None of the Holo Hosts is serving this hApp at the moment. (DNA hash ' + dna + ').'
-        });
+        };
         return;
     } else {
         // Trivial now
