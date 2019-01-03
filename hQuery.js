@@ -1,6 +1,7 @@
 /** 
  * hQuery.js
  * Is a helper library that manages connection between browser and HoloPorts on Holo network
+ * TODO: entire lib has to be rewritten from spagetti js to the Module Pattern (https://addyosmani.com/resources/essentialjsdesignpatterns/book/#modulepatternjavascript)
  */
 
 
@@ -14,7 +15,7 @@ const initHapp = url => {
     queryForHosts(url)
         .then(obj => processWorkerResponse(obj))
         .then(r => {
-            ip = '//:' + r;
+            ip = '//' + r;
             return fetchHappContent(r);
         })
         .then(html => replaceHtml(html, ip))

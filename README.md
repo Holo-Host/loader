@@ -1,10 +1,16 @@
 # Holo.host Loader Tools
 
-This is Pre-Alpha software only for testing purposes.
+Test branch PJs_v3
 
-This is a repository of the JavaScript tools which run on initial load of a web application running on Holo.Host P2P infrastructure.
+In this release entire js code lives inside hQuery.js. It still needs some work (a lot of TODOs).
 
- 1. [hololoader.js](hololoader/hololoader.js): Reads the HTTP Host entered into the browser address bar, then calls a service to translate that domain name into the Holochain application ID that you're trying to reach.
- 2. [Holo.js](holo/holo.js): Starts talking to P2P Holo hosts to load your application components.
- 
-In progress...
+I hard-coded a few test sites:
+
+http://test1.imagexchange.pl - will return regular app
+http://test2.imagexchange.pl - will return working hApp (proto, if no results are returned then probably hcdev server died)
+http://test3.imagexchange.pl - will return error (no entries in tranche)
+http://test4.imagexchange.pl - will return error (no entries in url2dna)
+
+And check out an error page that pops up :-)
+
+Happy testing :-)
