@@ -9,9 +9,14 @@
  * @param {string} url Url of the requested hApp
  */
 const initHapp = url => {
+    // Extend scope of ip
+    let ip;
     queryForHosts(url)
         .then(obj => processWorkerResponse(obj))
-        .then(ip => fetchHappContent(ip))
+        .then(r => {
+            ip = '//:' + r;
+            return fetchHappContent(r);
+        })
         .then(html => replaceHtml(html, ip))
         .catch(e => handleError({
             code: e.code || 500,
@@ -65,7 +70,7 @@ const processWorkerResponse = obj => {
     // Extract an IP that we want to grab
     // TODO: save it in some private variable and write a getter
     const ips = obj.ips;
-    if (typeof ips !== 'array' || ips.length === 0 || ips[0] === "") {
+    if (typeof ips !== 'object' || ips.length === 0 || ips[0] === "") {
         throw {
             code: 503,
             text: 'None of the Holo Hosts is serving this hApp at the moment. (DNA hash ' + dna + ').'
@@ -103,7 +108,7 @@ const handleError = (e) => {
     if (typeof e !== 'undefined' && e.code && e.text) {
         console.log('Received error from Cloudflare worker: ' + e.code + ': ' + e.text);
     } else {
-        console.log('Received unknown error from Cloudflare');
+        console.log('Received unknown error');
         e = {
             code: 500,
             text: 'General network error'
@@ -116,6 +121,7 @@ const handleError = (e) => {
 /** 
  * Replace entire html of the page
  * @param {string} html New html to replace the old one
+ * @param {string} ip FQDN or IP of base of all the relative addresses (with protocol and port, e.g. //test.holo.host:4141")
  */
 const replaceHtml = (html, ip) => {
     html = addBaseRaw(html, ip);

@@ -11,8 +11,6 @@ window.onload = function() {
         return b;
     })(window.location.search.substr(1).split('&'));
 
-    console.log(qs);
-
     if (qs.errorCode) document.getElementById("errorLongDescCode").innerHTML = qs.errorCode;
     if (qs.errorText) document.getElementById("errorLongDescText").innerHTML = qs.errorText;
 }
