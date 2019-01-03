@@ -29,26 +29,32 @@ async function handleRequest(request) {
 
     // Wrap code in try/catch block to return error stack in the response body
     try {
-        const requestObj = await request.json();
-        console.log(requestObj);
-
         // Check request parameters first
-        if (request.headers.get("Content-Type") !== 'application/json' || request.method.toLowerCase() !== 'post') {
-            responseStatus = 400;
-        } else if ( 
-            (typeof requestObj.dna === 'undefined' || requestObj.dna === "") &&
-            (typeof requestObj.url === 'undefined' || requestObj.url === "")
-        ) {
+        if (request.headers.get("Content-Type") !== 'application/x-www-form-urlencoded' || request.method.toLowerCase() !== 'post') {
             responseStatus = 400;
         } else {
-            // If dna was not passed then find it in the KV store
-            if (typeof requestObj.dna === 'undefined' || requestObj.dna === "") {
-                // Search in KV store for url.
-                responseObj.dna = url2dna[requestObj.url];
+            const data = await request.formData();
+            const requestObj = {
+                dna: data.get('dna'),
+                url: data.get('url')
             }
-            
-            responseObj.ips = dna2ip[responseObj.dna];
-            responseStatus = 200;
+            console.log(requestObj);
+
+            if ( 
+                (typeof requestObj.dna === 'undefined' || requestObj.dna === "") &&
+                (typeof requestObj.url === 'undefined' || requestObj.url === "")
+            ) {
+                responseStatus = 400;
+            } else {
+                // If dna was not passed then find it in the KV store
+                if (typeof requestObj.dna === 'undefined' || requestObj.dna === "") {
+                    // Search in KV store for url.
+                    responseObj.dna = url2dna[requestObj.url];
+                }
+                
+                responseObj.ips = dna2ip[responseObj.dna];
+                responseStatus = 200;
+            }
         }
 
         const init = {

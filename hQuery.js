@@ -36,7 +36,7 @@ const queryForHosts = (url = "", dna = "") => {
             cache: "no-cache",
             //mode: "no-cors", can't use this mode, because I won't be able to access response body
             headers: {
-                "Content-Type": "application/json",
+                "Content-Type": "application/x-www-form-urlencoded",
             },
             body: {url,dna}
         })
