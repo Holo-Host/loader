@@ -9,13 +9,15 @@
  * @param {string} url Url of the requested hApp
  */
 const initHapp = url => {
-    const ip = processWorkerResponse(queryForHosts(url));
-
-    const html = fetchHappContent(ip);
-
-    replaceHtml(html, ip);
-}
-
+    queryForHosts(url)
+        .then(obj => processWorkerResponse(obj))
+        .then(ip => fetchHappContent(ip))
+        .then(html => replaceHtml(html, ip))
+        .catch(e => handleError({
+            code: 500,
+            text: e
+        }));
+    }
 
 /**
  * Query Cloudflare worker url2ip for array of hosts serving hApp, that is 
@@ -36,18 +38,9 @@ const queryForHosts = (url = "", dna = "") => {
             headers: {
                 "Content-Type": "application/json",
             },
-            body: {url,data}
+            body: {url,dna}
         })
-        .then(r => r.json())
-        .then(obj => {
-            console.log('hApp DNA: ' + obj.dna);
-            console.log('hApp IPs: ' + obj.ips);
-            return obj;
-        })
-        .catch(e => handleError({
-            code: 500,
-            text: e
-        }));
+        .then(r => r.json());
 }
 
 /**
@@ -96,10 +89,6 @@ const fetchHappContent = (ip) => {
     // Fetch hApp content from selected HoloPort
     return fetch('http://' + ip)
         .then(r => r.text())
-        .catch(e => handleError({
-            code: 500,
-            text: e
-        }));
 }
 
 /**
