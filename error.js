@@ -17,7 +17,7 @@ const errorTableEn = {
         errorDescriptionShort: 'Not found',
         possibleReasons: [
             'There\'s no hApp registered at this address',
-            'hApp was registered less than 24h ago and data has not migrated yet.'
+            'hApp was registered less than 24h ago and data has not migrated yet'
         ]
     },
     415: {
@@ -36,7 +36,7 @@ const errorTableEn = {
     503: {
         errorDescriptionShort: 'Service Unavailable',
         possibleReasons: [
-            'None of the Holo Hosts is serving this hApp at the moment.'
+            'None of the Holo Hosts is serving this hApp at the moment'
         ]
     }
 };
