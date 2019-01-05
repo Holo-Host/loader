@@ -111,6 +111,20 @@
     margin-bottom: .5em;
  }
 
+ ul, ol {
+  margin: 1em 0;
+  padding: 0;
+  margin-inline-start: 2em;
+}
+
+ul > li, ol > li {
+  margin-bottom: .5em;
+}
+
+ul {
+  list-style: disc;
+}
+
  #errorLongDescCode {
     font-size: 1.6em;
     font-weight: 200;
@@ -120,7 +134,6 @@
      content: ""
  }
 
- #errorLongDescText {
-    margin-left: 1em;
+ #errorDescriptionShort {
     font-weight: 300;
  }

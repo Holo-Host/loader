@@ -8,6 +8,7 @@
 /**
  * Init hApp by taking url and grabing content from resolved HoloPort address
  * @param {string} url Url of the requested hApp
+ * @return null
  */
 const initHapp = url => {
     // Extend scope of ip
@@ -20,10 +21,9 @@ const initHapp = url => {
         })
         .then(html => replaceHtml(html, ip))
         .catch(e => handleError({
-            code: e.code || 500,
-            text: e.text || "Unknown error"
+            code: e.code
         }));
-    }
+}
 
 /**
  * Query Cloudflare worker url2ip for array of hosts serving hApp, that is 
@@ -52,10 +52,10 @@ const queryForHosts = (url = "", dna = "") => {
 /**
  * Process response from the workers - for now trivialy just select first IP from array
  * TODO: Make it much more sophisticated, including saving entire tranche for future calls
- * TODO: Move all the response statuses to worker and here only translate them into text https://tools.ietf.org/html/rfc7231#section-6
  * @param {Object} obj Response from url2ip worker
  * @param {array} obj.ips Array of ips (or FQDNs) of HoloPorts serving given hApp
  * @param {string} obj.dna Hash of a DNA of requested hApp
+ * @return {string} Return address of a host to initiate connection
  */
 const processWorkerResponse = obj => {
     // Save somewhere hApp DNA hash
@@ -63,8 +63,7 @@ const processWorkerResponse = obj => {
     const dna = obj.dna;
     if (typeof dna !== 'string' || dna === "") {
         throw {
-            code: 404,
-            text: 'There\'s no hApp registered at this address. Possible reason - hApp was registered less than 24h ago and data has not migrated yet.'
+            code: 404
         };
     }
 
@@ -73,8 +72,7 @@ const processWorkerResponse = obj => {
     const ips = obj.ips;
     if (typeof ips !== 'object' || ips.length === 0 || ips[0] === "") {
         throw {
-            code: 503,
-            text: 'None of the Holo Hosts is serving this hApp at the moment. (DNA hash ' + dna + ').'
+            code: 503
         };
         return;
     } else {
@@ -90,6 +88,7 @@ const processWorkerResponse = obj => {
  * TODO: Shall I also parse from url a path after domain name? That way we could maybe 
  *       support a server side rendering of a hApp if container understands it...
  * @param {string} ip IP (or FQDNs) of HoloPort serving given hApp
+ * @return {Promise} Html of the hApp
  */
 const fetchHappContent = (ip) => {
     // Fetch hApp content from selected HoloPort
@@ -99,30 +98,32 @@ const fetchHappContent = (ip) => {
 
 /**
  * Redirect to error page and pass error info if available
+ * TODO: Add troublesome url and dna
  * @param {Object} e Error returned
  * @param {int} e.code Error code (standard http request error code)
  * @param {string} e.text Error description
+ * @return null
  */
 const handleError = (e) => {
     const errorUrl = '//loader1.holohost.net/error.html';
 
-    if (typeof e !== 'undefined' && e.code && e.text) {
-        console.log('Received error from Cloudflare worker: ' + e.code + ': ' + e.text);
+    if (typeof e !== 'undefined' && e.code) {
+        console.log('Received error from Cloudflare worker: ' + e.code);
     } else {
         console.log('Received unknown error');
         e = {
             code: 500,
-            text: 'General network error'
         }
     }
 
-    window.location.href = errorUrl + '?errorCode=' + e.code + '&errorText=' + encodeURI(e.text);
+    window.location.href = errorUrl + '?errorCode=' + e.code;
 }
 
 /** 
  * Replace entire html of the page
  * @param {string} html New html to replace the old one
  * @param {string} ip FQDN or IP of base of all the relative addresses (with protocol and port, e.g. //test.holo.host:4141")
+ * @return null
  */
 const replaceHtml = (html, ip) => {
     html = addBaseRaw(html, ip);
@@ -135,6 +136,7 @@ const replaceHtml = (html, ip) => {
  * Add <base> tag that defines host for relative urls on page
  * @param {string} html Html to add tag to
  * @param {string} url hostname (with protocol and port, e.g. //test.holo.host:4141")
+ * @return {string} Html with <base> tag inserted
  */
 const addBaseRaw = (html, url) => {
     // TODO: make this more robust with a real HTML parser.
