@@ -1,146 +1,187 @@
 /** 
  * hQuery.js
- * Is a helper library that manages connection between browser and HoloPorts on Holo network
- * TODO: entire lib has to be rewritten from spagetti js to the Module Pattern (https://addyosmani.com/resources/essentialjsdesignpatterns/book/#modulepatternjavascript)
+ * Is a helper module that manages connection between browser and HoloPorts on Holo network
+ * TODO: In the future if the process of connecting to the host takes time (like more than 500ms)
+ *       display nice Holo logo and something like "Connecting to Holo network..."
  */
 
+const hQuery = (function(){
+    let _url = '', // Url of the current hApp (host name from the browser's location field)
+        _dna = '', // Hash of DNA of the current hApp
+        _tranche = []; // Tranche - array of host addresses that serve given hApp
 
-/**
- * Init hApp by taking url and grabing content from resolved HoloPort address
- * @param {string} url Url of the requested hApp
- * @return null
- */
-const initHapp = url => {
-    // Extend scope of ip
-    let ip;
-    queryForHosts(url)
-        .then(obj => processWorkerResponse(obj))
-        .then(r => {
-            ip = '//' + r;
-            return fetchHappContent(r);
-        })
-        .then(html => replaceHtml(html, ip))
-        .catch(e => handleError({
-            code: e.code
-        }));
-}
 
-/**
- * Query Cloudflare worker url2ip for array of hosts serving hApp, that is 
- * registered with given URL. Can be identified by url or hash
- * @param {string} url Url of the requested hApp
- * @param {string} dna Hash of a dna of requested hApp
- * @return {Object} {dna: '', ips: []} Hash of DNA and array of IPs
- */
-const queryForHosts = (url = "", dna = "") => {
-    // Address of url2ip service worker
-    const url2ipUrl = '//url2ip.holohost.net';
+    /**
+     * Url getter
+     * @return url of the current hApp
+     */
+    const getHappUrl = () => _url;
 
-    // Call worker to resolve url to array of IPs of HoloPorts
-    return fetch(url2ipUrl, {
-            method: "POST",
-            cache: "no-cache",
-            //mode: "no-cors", can't use this mode, because I won't be able to access response body
-            headers: {
-                "Content-Type": "application/x-www-form-urlencoded",
-            },
-            body: 'url=' + encodeURIComponent(url) + '&dna=' + encodeURIComponent(dna)
-        })
-        .then(r => r.json());
-}
 
-/**
- * Process response from the workers - for now trivialy just select first IP from array
- * TODO: Make it much more sophisticated, including saving entire tranche for future calls
- * @param {Object} obj Response from url2ip worker
- * @param {array} obj.ips Array of ips (or FQDNs) of HoloPorts serving given hApp
- * @param {string} obj.dna Hash of a DNA of requested hApp
- * @return {string} Return address of a host to initiate connection
- */
-const processWorkerResponse = obj => {
-    // Save somewhere hApp DNA hash
-    // TODO: save it in some private variable and write a getter
-    const dna = obj.dna;
-    if (typeof dna !== 'string' || dna === "") {
-        throw {
-            code: 404
-        };
+    /**
+     * DNA hash getter
+     * @return Hash of DNA of the current hApp
+     */
+    const getHappDna = () => _dna;
+
+
+    /**
+     * Init hApp by taking url and grabing content from resolved HoloPort address
+     * TODO: In the future we will want to have some mechanism of detecting failed calls
+     *       to hosts, making call to another host from the list and reporting slacker
+     *       to the tranche service
+     * @return null
+     */
+    const initHapp = () => {
+        // Save url of hApp
+        // TODO: Check if protocol is https?
+        _url = window.location.hostname;
+
+        // Extend scope of ip
+        let addr;
+        queryForHosts(_url)
+            .then(obj => processWorkerResponse(obj))
+            .then(r => {
+                // Add protocol to hostname
+                addr = '//' + r;
+                return fetchHappContent(r);
+            })
+            .then(html => replaceHtml(html, addr))
+            .catch(e => handleError({
+                code: e.code
+            }));
     }
 
-    // Extract an IP that we want to grab
-    // TODO: save it in some private variable and write a getter
-    const ips = obj.ips;
-    if (typeof ips !== 'object' || ips.length === 0 || ips[0] === "") {
-        throw {
-            code: 503
-        };
-        return;
-    } else {
-        // Trivial now
-        return ips[0];
+
+    /**
+     * Query Cloudflare worker url2ip for array of hosts serving hApp, that is 
+     * registered with given URL. Can be identified by url or dna, dna takes precedence.
+     * @param {string} url Url of the requested hApp
+     * @param {string} dna Hash of a dna of requested hApp
+     * @return {Object} {dna: '', ips: []} Hash of DNA and array of IPs
+     */
+    const queryForHosts = (url = "", dna = "") => {
+        // Address of url2ip service worker
+        const url2ipUrl = '//url2ip.holohost.net';
+
+        // Call worker to resolve url to array of addresses of HoloPorts
+        return fetch(url2ipUrl, {
+                method: "POST",
+                cache: "no-cache",
+                //mode: "no-cors", can't use this mode, because I won't be able to access response body
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded", // Do not change or CORS will come and eat you alive
+                },
+                body: 'url=' + encodeURIComponent(url) + '&dna=' + encodeURIComponent(dna)
+            })
+            .then(r => r.json());
     }
-}
 
-/**
- * Fetch hApp content from the given HoloPort (now identified by IP)
- * TODO: Pass more arguments (DNA, user pk), because one HoloPort can serve
- *       multiple hApps for multiple users...
- * TODO: Shall I also parse from url a path after domain name? That way we could maybe 
- *       support a server side rendering of a hApp if container understands it...
- * @param {string} ip IP (or FQDNs) of HoloPort serving given hApp
- * @return {Promise} Html of the hApp
- */
-const fetchHappContent = (ip) => {
-    // Fetch hApp content from selected HoloPort
-    return fetch('http://' + ip)
-        .then(r => r.text())
-}
 
-/**
- * Redirect to error page and pass error info if available
- * TODO: Add troublesome url and dna
- * @param {Object} e Error returned
- * @param {int} e.code Error code (standard http request error code)
- * @param {string} e.text Error description
- * @return null
- */
-const handleError = (e) => {
-    const errorUrl = '//loader1.holohost.net/error.html';
+    /**
+     * Process response from the workers - for now trivialy just select first IP from array
+     * @param {Object} obj Response from url2ip worker
+     * @param {array} obj.hosts Array of ips (or FQDNs) of HoloPorts serving given hApp
+     * @param {string} obj.dna Hash of a DNA of requested hApp
+     * @return {string} Return address of a host to initiate connection
+     */
+    const processWorkerResponse = obj => {
+        // Save somewhere hApp DNA hash
+        if (typeof obj.dna !== 'string' || obj.dna === "") {
+            throw {
+                code: 404
+            };
+        } else {
+            _dna = obj.dna;
+        }
 
-    if (typeof e !== 'undefined' && e.code) {
-        console.log('Received error from Cloudflare worker: ' + e.code);
-    } else {
-        console.log('Received unknown error');
-        e = {
-            code: 500,
+        // Extract an IP that we want to grab
+        if (typeof obj.hosts !== 'object' || obj.hosts.length === 0 || obj.hosts[0] === "") {
+            throw {
+                code: 503
+            };
+            return;
+        } else {
+            // Trivial now
+            _tranche = obj.ips;
+            return _tranche[0];
         }
     }
 
-    window.location.href = errorUrl + '?errorCode=' + e.code;
-}
 
-/** 
- * Replace entire html of the page
- * @param {string} html New html to replace the old one
- * @param {string} ip FQDN or IP of base of all the relative addresses (with protocol and port, e.g. //test.holo.host:4141")
- * @return null
- */
-const replaceHtml = (html, ip) => {
-    html = addBaseRaw(html, ip);
-    document.open();
-    document.write(html);
-    document.close();
-}
+    /**
+     * Fetch hApp content from the given HoloPort (now identified by IP)
+     * TODO: Pass more arguments (DNA, user pk), because one HoloPort can serve
+     *       multiple hApps for multiple users...
+     * TODO: Shall I also parse from url a path after domain name? That way we could maybe 
+     *       support a server side rendering of a hApp if container understands it...
+     * @param {string} addr IP (or FQDNs) of HoloPort serving given hApp
+     * @return {Promise} Html of the hApp
+     */
+    const fetchHappContent = (addr) => {
+        // Fetch hApp content from selected HoloPort
+        return fetch('http://' + addr)
+            .then(r => r.text())
+    }
 
-/** 
- * Add <base> tag that defines host for relative urls on page
- * @param {string} html Html to add tag to
- * @param {string} url hostname (with protocol and port, e.g. //test.holo.host:4141")
- * @return {string} Html with <base> tag inserted
- */
-const addBaseRaw = (html, url) => {
-    // TODO: make this more robust with a real HTML parser.
-    // For instance, this fails on something weird like:
-    // <head data-lol=">">
-    return html.replace(/<head(.*?)>/, `<head$1><base href="${url}"/>`)
-}
+
+    /**
+     * Redirect to error page and pass error info if available
+     * TODO: Make this error handling much more sophisticated in the future,
+     *       i.e. do not give up on first failure but try other hosts from the _tranche
+     * @param {Object} e Error returned
+     * @param {int} e.code Error code (standard http request error code)
+     * @param {string} e.text Error description
+     * @return null
+     */
+    const handleError = (e) => {
+        const errorUrl = '//loader1.holohost.net/error.html';
+
+        if (typeof e !== 'undefined' && e.code) {
+            console.log('Received error from Cloudflare worker: ' + e.code);
+        } else {
+            console.log('Received unknown error');
+            e = {
+                code: 500,
+            }
+        }
+
+        window.location.href = errorUrl + '?errorCode=' + e.code + ((_url) ? ('&url=' + encodeURI(_url)) : "") + ((_dna) ? ('&dna=' + encodeURI(_dna)) : "")
+    }
+
+
+    /** 
+     * Replace entire html of the page
+     * @param {string} html New html to replace the old one
+     * @param {string} addr FQDN or IP of base of all the relative addresses (with protocol and port, e.g. //test.holo.host:4141")
+     * @return null
+     */
+    const replaceHtml = (html, addr) => {
+        html = addBaseRaw(html, addr);
+        document.open();
+        document.write(html);
+        document.close();
+    }
+
+
+    /** 
+     * Add <base> tag that defines host for relative urls on page
+     * @param {string} html Html to add tag to
+     * @param {string} url hostname (with protocol and port, e.g. //test.holo.host:4141")
+     * @return {string} Html with <base> tag inserted
+     */
+    const addBaseRaw = (html, url) => {
+        // TODO: make this more robust with a real HTML parser.
+        // For instance, this fails on something weird like:
+        // <head data-lol=">">
+        return html.replace(/<head(.*?)>/, `<head$1><base href="${url}"/>`)
+    }
+
+
+    // Public API
+    return {
+        initHapp: initHapp,
+        getHappUrl: getHappUrl,
+        getHappDna: getHappDna
+    }
+})();
