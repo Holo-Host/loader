@@ -21,20 +21,20 @@ const errorTableEn = {
         ]
     },
     415: {
-        errorDescriptionShort: 'TODO:', // TODO:
+        errorDescriptionShort: 'Unsupported Media Type',
         possibleReasons: [
             'Request made to the server was imporperly formatted. Please check documentation for proper formatting'
         ]
     },
     500: {
-        errorDescriptionShort: 'Internal network error', // TODO:
+        errorDescriptionShort: 'Internal Server Error',
         possibleReasons: [
             'Unknown reason 1',
             'Unknown reason 2'
         ]
     },
     503: {
-        errorDescriptionShort: 'TODO:', // TODO:
+        errorDescriptionShort: 'Service Unavailable',
         possibleReasons: [
             'None of the Holo Hosts is serving this hApp at the moment.'
         ]

@@ -1,15 +1,16 @@
 /** 
  * hQuery.js
  * Is a helper module that manages connection between browser and HoloPorts on Holo network
+ * Public API exposes: initHapp(), getHappUrl(), getHappDna()
  * TODO: In the future if the process of connecting to the host takes time (like more than 500ms)
  *       display nice Holo logo and something like "Connecting to Holo network..."
  */
 
 const hQuery = (function(){
+    // Private data store of the module
     let _url = '', // Url of the current hApp (host name from the browser's location field)
         _dna = '', // Hash of DNA of the current hApp
         _tranche = []; // Tranche - array of host addresses that serve given hApp
-
 
     /**
      * Url getter
@@ -17,13 +18,11 @@ const hQuery = (function(){
      */
     const getHappUrl = () => _url;
 
-
     /**
      * DNA hash getter
      * @return Hash of DNA of the current hApp
      */
     const getHappDna = () => _dna;
-
 
     /**
      * Init hApp by taking url and grabing content from resolved HoloPort address
@@ -52,7 +51,6 @@ const hQuery = (function(){
             }));
     }
 
-
     /**
      * Query Cloudflare worker url2ip for array of hosts serving hApp, that is 
      * registered with given URL. Can be identified by url or dna, dna takes precedence.
@@ -76,7 +74,6 @@ const hQuery = (function(){
             })
             .then(r => r.json());
     }
-
 
     /**
      * Process response from the workers - for now trivialy just select first IP from array
@@ -103,11 +100,10 @@ const hQuery = (function(){
             return;
         } else {
             // Trivial now
-            _tranche = obj.ips;
+            _tranche = obj.hosts;
             return _tranche[0];
         }
     }
-
 
     /**
      * Fetch hApp content from the given HoloPort (now identified by IP)
@@ -123,7 +119,6 @@ const hQuery = (function(){
         return fetch('http://' + addr)
             .then(r => r.text())
     }
-
 
     /**
      * Redirect to error page and pass error info if available
@@ -149,7 +144,6 @@ const hQuery = (function(){
         window.location.href = errorUrl + '?errorCode=' + e.code + ((_url) ? ('&url=' + encodeURI(_url)) : "") + ((_dna) ? ('&dna=' + encodeURI(_dna)) : "")
     }
 
-
     /** 
      * Replace entire html of the page
      * @param {string} html New html to replace the old one
@@ -163,7 +157,6 @@ const hQuery = (function(){
         document.close();
     }
 
-
     /** 
      * Add <base> tag that defines host for relative urls on page
      * @param {string} html Html to add tag to
@@ -176,7 +169,6 @@ const hQuery = (function(){
         // <head data-lol=">">
         return html.replace(/<head(.*?)>/, `<head$1><base href="${url}"/>`)
     }
-
 
     // Public API
     return {

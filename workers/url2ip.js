@@ -49,7 +49,7 @@ async function handleRequest(request) {
                     responseObj.dna = url2dna[requestObj.url];
                 }
                 
-                responseObj.ips = dna2ip[responseObj.dna];
+                responseObj.hosts = dna2ip[responseObj.dna];
                 responseStatus = 200;
             }
         }
