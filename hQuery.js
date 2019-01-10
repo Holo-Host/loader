@@ -7,6 +7,12 @@
  */
 
 const hQuery = (function(){
+    // Networking settings etc
+    const settings = {
+        url2ipUrl: '//url2ip.holohost.net', // Address of url2ip service worker
+        errorUrl:  '//loader1.holohost.net/error.html' // Address of an error page handler
+    };
+
     // Private data store of the module
     let _url = '', // Url of the current hApp (host name from the browser's location field)
         _dna = '', // Hash of DNA of the current hApp
@@ -59,11 +65,8 @@ const hQuery = (function(){
      * @return {Object} {dna: '', ips: []} Hash of DNA and array of IPs
      */
     const queryForHosts = (url = "", dna = "") => {
-        // Address of url2ip service worker
-        const url2ipUrl = '//url2ip.holohost.net';
-
         // Call worker to resolve url to array of addresses of HoloPorts
-        return fetch(url2ipUrl, {
+        return fetch(settings.url2ipUrl, {
                 method: "POST",
                 cache: "no-cache",
                 //mode: "no-cors", can't use this mode, because I won't be able to access response body
@@ -130,8 +133,6 @@ const hQuery = (function(){
      * @return null
      */
     const handleError = (e) => {
-        const errorUrl = '//loader1.holohost.net/error.html';
-
         if (typeof e !== 'undefined' && e.code) {
             console.log('Received error from Cloudflare worker: ' + e.code);
         } else {
@@ -141,7 +142,10 @@ const hQuery = (function(){
             }
         }
 
-        window.location.href = errorUrl + '?errorCode=' + e.code + ((_url) ? ('&url=' + encodeURI(_url)) : "") + ((_dna) ? ('&dna=' + encodeURI(_dna)) : "")
+        window.location.href = settings.errorUrl 
+                             + '?errorCode=' + e.code 
+                             + ((_url) ? ('&url=' + encodeURI(_url)) : "") 
+                             + ((_dna) ? ('&dna=' + encodeURI(_dna)) : "");
     }
 
     /** 
