@@ -34,8 +34,6 @@ async function handleRequest(request) {
         ns = NAMESPACE.get()
         console.log(ns)
 
-
-
         // Check request parameters first
         if (request.method.toLowerCase() !== 'post') {
             responseStatus = 400;
