@@ -53,11 +53,26 @@ async function handleRequest(request) {
                 }
                 console.log('getting IPs for', responseObj.dna)
                 // get value from KV store
-                let hostsArrayJSON = await DNA2IP.get(responseObj.dna, "json")
-                // console.log("h2", hostsArrayJSON)
+                let hostsArrayString = await DNA2IP.get(responseObj.dna)
+                //console.log(hostsArrayString)
+                // BECAUSE we are going to JSON.stringify()
+                // we have to prep the data.
+                // In KV Store value is a string.
+                // It cannot be an actual array.
+                // It is stored with brackets like an array
+                // so we have to strip it first.
+                let hostsString = hostsArrayString.replace(/[\[\]']+/g,'')
+                //console.log(hostsString)
+                // entries include quotes
+                // so we have to strip those, too
+                let unquotedHostsString = hostsString.replace(/['"]+/g, '')
+                //console.log(unquotedHostsString)
+                // split on comma for multiple entries
+                let hostsArray = unquotedHostsString.split(",");
+                //console.log(hostsArray)
                 // set
-                responseObj.hosts = hostsArrayJSON
-                // console.log(responseObj.hosts)
+                responseObj.hosts = hostsArray
+                //console.log(responseObj.hosts)
                 responseStatus = 200;
             }
         }
