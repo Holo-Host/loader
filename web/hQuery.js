@@ -180,7 +180,7 @@ const hQuery = (function(){
 
     // Public API
     return {
-        // initHapp: initHapp,
+        initHapp: initHapp,
         //getHappUrl: getHappUrl,
         //getHappDna: getHappDna
     }
