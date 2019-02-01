@@ -1,4 +1,4 @@
-/** 
+/**
  * hQuery.js
  * Is a helper module that manages connection between browser and HoloPorts on Holo network
  * Public API exposes: initHapp(), getHappUrl(), getHappDna()
@@ -58,13 +58,14 @@ const hQuery = (function(){
     }
 
     /**
-     * Query Cloudflare worker url2ip for array of hosts serving hApp, that is 
+     * Query Cloudflare worker url2ip for array of hosts serving hApp, that is
      * registered with given URL. Can be identified by url or dna, dna takes precedence.
      * @param {string} url Url of the requested hApp
      * @param {string} dna Hash of a dna of requested hApp
      * @return {Object} {dna: '', ips: []} Hash of DNA and array of IPs
      */
     const queryForHosts = (url = "", dna = "") => {
+        console.log('getting hosts');
         // Call worker to resolve url to array of addresses of HoloPorts
         return fetch(settings.url2ipUrl, {
                 method: "POST",
@@ -112,7 +113,7 @@ const hQuery = (function(){
      * Fetch hApp content from the given HoloPort (now identified by IP)
      * TODO: Pass more arguments (DNA, user pk), because one HoloPort can serve
      *       multiple hApps for multiple users...
-     * TODO: Shall I also parse from url a path after domain name? That way we could maybe 
+     * TODO: Shall I also parse from url a path after domain name? That way we could maybe
      *       support a server side rendering of a hApp if container understands it...
      * @param {string} addr IP (or FQDNs) of HoloPort serving given hApp
      * @return {Promise} Html of the hApp
@@ -142,13 +143,13 @@ const hQuery = (function(){
             }
         }
 
-        window.location.href = settings.errorUrl 
-                             + '?errorCode=' + e.code 
-                             + ((_url) ? ('&url=' + encodeURI(_url)) : "") 
+        window.location.href = settings.errorUrl
+                             + '?errorCode=' + e.code
+                             + ((_url) ? ('&url=' + encodeURI(_url)) : "")
                              + ((_dna) ? ('&dna=' + encodeURI(_dna)) : "");
     }
 
-    /** 
+    /**
      * Replace entire html of the page
      * @param {string} html New html to replace the old one
      * @param {string} addr FQDN or IP of base of all the relative addresses (with protocol and port, e.g. //test.holo.host:4141")
@@ -161,7 +162,7 @@ const hQuery = (function(){
         document.close();
     }
 
-    /** 
+    /**
      * Add <base> tag that defines host for relative urls on page
      * @param {string} html Html to add tag to
      * @param {string} url hostname (with protocol and port, e.g. //test.holo.host:4141")
