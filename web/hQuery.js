@@ -55,8 +55,9 @@ const hQuery = (function(){
             /*
             .catch(e => handleError({
                 code: e.code
-            }));
+            }))
             */
+           ;
     }
 
     /**
