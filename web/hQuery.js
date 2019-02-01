@@ -97,6 +97,7 @@ const hQuery = (function(){
                 code: 404
             };
         } else {
+            console.log(obj.dna);
             _dna = obj.dna;
         }
 
@@ -108,6 +109,7 @@ const hQuery = (function(){
             return;
         } else {
             // Trivial now
+            console.log(obj.hosts);
             _tranche = obj.hosts;
             return _tranche[0];
         }
