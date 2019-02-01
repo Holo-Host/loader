@@ -90,6 +90,7 @@ const hQuery = (function(){
      * @return {string} Return address of a host to initiate connection
      */
     const processWorkerResponse = obj => {
+        console.log("processing worker response");
         // Save somewhere hApp DNA hash
         if (typeof obj.dna !== 'string' || obj.dna === "") {
             throw {
