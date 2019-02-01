@@ -80,7 +80,6 @@ const hQuery = (function(){
                 body: 'url=' + encodeURIComponent(url) + '&dna=' + encodeURIComponent(dna)
             })
             .then(r => {
-                console.log(r);
                 r.json();
               }
             );
@@ -95,6 +94,7 @@ const hQuery = (function(){
      */
     const processWorkerResponse = obj => {
         console.log("processing worker response");
+        consol.log(obj);
         // Save somewhere hApp DNA hash
         if (typeof obj.dna !== 'string' || obj.dna === "") {
             throw {
