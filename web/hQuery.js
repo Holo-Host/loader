@@ -94,7 +94,7 @@ const hQuery = (function(){
      */
     const processWorkerResponse = obj => {
         console.log("processing worker response");
-        consol.log(obj);
+        console.log(obj);
         // Save somewhere hApp DNA hash
         if (typeof obj.dna !== 'string' || obj.dna === "") {
             throw {
