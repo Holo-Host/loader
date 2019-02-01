@@ -185,3 +185,5 @@ const hQuery = (function(){
         //getHappDna: getHappDna
     }
 })();
+
+console.log("hQuery loaded");
