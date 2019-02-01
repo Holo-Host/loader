@@ -44,7 +44,6 @@ const hQuery = (function(){
 
         // Extend scope of ip
         let addr;
-        console.log(obj);
         queryForHosts(_url)
             .then(obj => processWorkerResponse(obj))
             .then(r => {
@@ -95,7 +94,7 @@ const hQuery = (function(){
      */
     const processWorkerResponse = obj => {
         console.log("processing worker response");
-        console.log(obj);
+
         // Save somewhere hApp DNA hash
         if (typeof obj.dna !== 'string' || obj.dna === "") {
             throw {
@@ -104,6 +103,7 @@ const hQuery = (function(){
         } else {
             console.log(obj.dna);
             _dna = obj.dna;
+            console.log(_dna);
         }
 
         // Extract an IP that we want to grab
@@ -116,6 +116,7 @@ const hQuery = (function(){
             // Trivial now
             console.log(obj.hosts);
             _tranche = obj.hosts;
+            console.log(_tranche);
             return _tranche[0];
         }
     }
