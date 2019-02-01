@@ -44,6 +44,7 @@ const hQuery = (function(){
 
         // Extend scope of ip
         let addr;
+        console.log(obj);
         queryForHosts(_url)
             .then(obj => processWorkerResponse(obj))
             .then(r => {
