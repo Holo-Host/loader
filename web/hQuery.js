@@ -178,7 +178,7 @@ const hQuery = (function(){
     // Public API
     return {
         initHapp: initHapp,
-        getHappUrl: getHappUrl,
-        getHappDna: getHappDna
+        //getHappUrl: getHappUrl,
+        //getHappDna: getHappDna
     }
 })();
