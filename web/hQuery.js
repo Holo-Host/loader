@@ -68,7 +68,7 @@ const hQuery = (function(){
      * @return {Object} {dna: '', ips: []} Hash of DNA and array of IPs
      */
     const queryForHosts = (url = "", dna = "") => {
-        console.log('getting hosts');
+        console.log('getting hosts for', url);
         // Call worker to resolve url to array of addresses of HoloPorts
         return fetch(settings.url2ipUrl, {
                 method: "POST",
