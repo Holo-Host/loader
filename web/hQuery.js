@@ -79,7 +79,11 @@ const hQuery = (function(){
                 },
                 body: 'url=' + encodeURIComponent(url) + '&dna=' + encodeURIComponent(dna)
             })
-            .then(r => r.json());
+            .then(r => {
+                console.log(r);
+                r.json();
+              }
+            );
     }
 
     /**
