@@ -149,7 +149,7 @@ const hQuery = (function(){
             }
         }
 
-        window.location.href = settings.errorUrl
+        //window.location.href = settings.errorUrl
                              + '?errorCode=' + e.code
                              + ((_url) ? ('&url=' + encodeURI(_url)) : "")
                              + ((_dna) ? ('&dna=' + encodeURI(_dna)) : "");
@@ -184,8 +184,8 @@ const hQuery = (function(){
     // Public API
     return {
         initHapp: initHapp,
-        //getHappUrl: getHappUrl,
-        //getHappDna: getHappDna
+        getHappUrl: getHappUrl,
+        getHappDna: getHappDna
     }
 })();
 
