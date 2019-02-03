@@ -80,7 +80,7 @@ const hQuery = (function(){
                 body: 'url=' + encodeURIComponent(url) + '&dna=' + encodeURIComponent(dna)
             })
             .then(r => {
-                r.json();
+                return r.json();
               }
             );
     }
