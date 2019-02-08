@@ -54,11 +54,9 @@ const hQuery = (function(){
                 return fetchHappContent(r);
             })
             .then(html => replaceHtml(html, addr))
-            /*
             .catch(e => handleError({
                 code: e.code
             }))
-            */
            ;
     }
 
@@ -194,3 +192,5 @@ const hQuery = (function(){
 })();
 
 console.log("hQuery loaded");
+
+// end
