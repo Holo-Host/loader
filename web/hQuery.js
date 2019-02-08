@@ -44,19 +44,21 @@ const hQuery = (function(){
 
         // Extend scope of ip
         let addr;
+        // tmp
+        //_url = "test2.imagexchange.pl";
         queryForHosts(_url)
-            .then(obj => {
-              processWorkerResponse(obj);
-            })
+            .then(obj => processWorkerResponse(obj))
             .then(r => {
                 // Add protocol to hostname
                 addr = '//' + r;
                 return fetchHappContent(r);
             })
             .then(html => replaceHtml(html, addr))
+            /*
             .catch(e => handleError({
                 code: e.code
             }))
+            */
            ;
     }
 
@@ -68,17 +70,16 @@ const hQuery = (function(){
      * @return {Object} {dna: '', ips: []} Hash of DNA and array of IPs
      */
     const queryForHosts = (url = "", dna = "") => {
+        console.log('getting hosts for', url);
         // Call worker to resolve url to array of addresses of HoloPorts
-        var headers = {
-          "Content-Type": "application/x-www-form-urlencoded"
-        }
-        // enable dna later
-        var body = 'url=' + encodeURIComponent(url); //+ '&dna=' + encodeURIComponent(dna);
         return fetch(settings.url2ipUrl, {
                 method: "POST",
                 cache: "no-cache",
-                headers: headers,
-                body: body
+                //mode: "no-cors", can't use this mode, because I won't be able to access response body
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded", // Do not change or CORS will come and eat you alive
+                },
+                body: 'url=' + encodeURIComponent(url) + '&dna=' + encodeURIComponent(dna)
             })
             .then(r => {
                 return r.json();
@@ -94,13 +95,17 @@ const hQuery = (function(){
      * @return {string} Return address of a host to initiate connection
      */
     const processWorkerResponse = obj => {
+        console.log("processing worker response");
+
         // Save somewhere hApp DNA hash
         if (typeof obj.dna !== 'string' || obj.dna === "") {
             throw {
                 code: 404
             };
         } else {
+            console.log(obj.dna);
             _dna = obj.dna;
+            console.log(_dna);
         }
 
         // Extract an IP that we want to grab
@@ -110,7 +115,10 @@ const hQuery = (function(){
             };
             return;
         } else {
+            // Trivial now
+            console.log(obj.hosts);
             _tranche = obj.hosts;
+            console.log(_tranche);
             return _tranche[0];
         }
     }
@@ -192,5 +200,3 @@ const hQuery = (function(){
 })();
 
 console.log("hQuery loaded");
-
-// end
