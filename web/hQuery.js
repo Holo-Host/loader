@@ -9,7 +9,7 @@
 const hQuery = (function(){
     // Networking settings etc
     const settings = {
-        url2ipUrl: '//url2ip.holohost.net', // Address of url2ip service worker
+        resolverUrl: '//resolver.holohost.net', // Address of url resolver service worker
         errorUrl:  '//loader1.holohost.net/error.html' // Address of an error page handler
     };
 
@@ -63,7 +63,7 @@ const hQuery = (function(){
     }
 
     /**
-     * Query Cloudflare worker url2ip for array of hosts serving hApp, that is
+     * Query Cloudflare worker resolver for array of hosts serving hApp, that is
      * registered with given URL. Can be identified by url or dna, dna takes precedence.
      * @param {string} url Url of the requested hApp
      * @param {string} dna Hash of a dna of requested hApp
@@ -72,7 +72,7 @@ const hQuery = (function(){
     const queryForHosts = (url = "", dna = "") => {
         console.log('getting hosts for', url);
         // Call worker to resolve url to array of addresses of HoloPorts
-        return fetch(settings.url2ipUrl, {
+        return fetch(settings.resolverUrl, {
                 method: "POST",
                 cache: "no-cache",
                 //mode: "no-cors", can't use this mode, because I won't be able to access response body
@@ -89,7 +89,7 @@ const hQuery = (function(){
 
     /**
      * Process response from the workers - for now trivialy just select first IP from array
-     * @param {Object} obj Response from url2ip worker
+     * @param {Object} obj Response from resolver Cloudflare worker
      * @param {array} obj.hosts Array of ips (or FQDNs) of HoloPorts serving given hApp
      * @param {string} obj.dna Hash of a DNA of requested hApp
      * @return {string} Return address of a host to initiate connection
