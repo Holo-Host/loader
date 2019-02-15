@@ -134,7 +134,7 @@ const hQuery = (function(){
      */
     const fetchHappContent = (addr) => {
         // Fetch hApp content from selected HoloPort
-        return fetch('http://' + addr)
+        return fetch('//' + addr)
             .then(r => r.text())
     }
 

@@ -1,11 +1,15 @@
-// Error code to error description table in a format:
-// { 
-//     errorCode: { 
-//        errorDescriptionShort: "errorDescriptionShort",
-//        possibleReasons: ["reason1", "reason2"]
-//     }
-// }
-// Compare https://tools.ietf.org/html/rfc7231#section-6
+/**
+ *  Error code to error description table in a format:
+ *  { 
+ *      errorCode: { 
+ *         errorDescriptionShort: "errorDescriptionShort",
+ *         possibleReasons: ["reason1", "reason2"]
+ *      }
+ *  }
+ *  Compare https://tools.ietf.org/html/rfc7231#section-6
+ */
+
+ // Error description table for English language
 const errorTableEn = {
     400: {
         errorDescriptionShort: 'Bad request',

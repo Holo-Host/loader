@@ -4,6 +4,6 @@ hQuery is a js module handling network connections with HoloPorts. For the close
 
 Test sites:
 
-- http://test2.imagexchange.pl - will return working hApp (proto, if no results are returned then probably hcdev server died)
+- https://hello.artflow.network - will return working hApp (proto, if no results are returned then probably hcdev server died)
 
 
