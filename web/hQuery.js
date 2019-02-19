@@ -172,13 +172,30 @@ const hQuery = (function(){
      * @return null
      */
     const replaceHtml = (html, addr) => {
-        html = addBaseRaw(html, addr);
+        html = addConnectionUrlScript(html, addr);
         document.open();
         document.write(html);
         document.close();
     }
 
     /**
+     * Adds a tiny script in the new document that sets window.holochainUrl which is later detected
+     * by the hc-web-client to redirect calls
+     *
+     * @param {string} html Html to add tag to
+     * @param {string} url hostname (with protocol and port, e.g. //test.holo.host:4141")
+     * @return {string} Html with new script tag inserted at the top level
+     */
+    const addConnectionUrlScript = (html, url) => {
+        parser = new DOMParser();
+        doc = parser.parseFromString(html, "text/html");
+        var script = doc.createElement('script');
+        doc.head.appendChild(script);
+        return doc.documentElement.outerHTML
+    }
+
+    /**
+     * (DEPRECATED)
      * Add <base> tag that defines host for relative urls on page
      * @param {string} html Html to add tag to
      * @param {string} url hostname (with protocol and port, e.g. //test.holo.host:4141")
@@ -196,7 +213,7 @@ const hQuery = (function(){
         initHapp: initHapp,
         getHappUrl: getHappUrl,
         getHappDna: getHappDna
-    }
+    // }
 })();
 
 console.log("hQuery loaded");
