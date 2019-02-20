@@ -13,10 +13,40 @@ const hClient = (function(){
 
     const overrideWebClient = (url) => {
         const holochainClient = win.holochainClient;
-        
+
         win.holochainClient = {
-            connect: holochainClient.connect(url)
+            connect: holochainClient.connect(url).then(({call, close, ws}) => {
+                return {
+                    call: (callString) => (params) => {
+                        let {callString, params} = preCall(callString, params);
+                        return call(callString)(params).then(postCall);
+                    },
+                    close: () => {},
+                    ws: () => {},
+                }
+            })
         };
+    }
+
+    /**
+     * Preprocesses the callString and params before making a call
+     *
+     * @param      {string}  callString  The call string e.g. dna/zome/function
+     * @param      {Object}  params      The parameters 
+     * @return     {callString, params}  The updated callString and params passed to call
+     */
+    const preCall = (callString, params) => {
+        return {callString, params};
+    }
+
+    /**
+     * Postprocess the response of a call before returning it to the UI
+     *
+     * @param      {string}  response  The response of the call
+     * @return     {string}  Updated response
+     */
+    const postCall = (response) => {
+        return response;
     }
 
     return {

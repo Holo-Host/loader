@@ -189,8 +189,8 @@ const hQuery = (function(){
 
 
 /**
- * Adds a tiny script in the new document that sets window.holochainUrl which is later detected
- * by the hc-web-client to redirect calls. At the moment this adds the websocket 
+ * Adds a script that imports hClient and overrides the window web client.
+ * Effectively enables a holochain app to be holo compatible
  *
  * @param {string} html Html to add tag to
  * @param {string} url hostname (with protocol and port, e.g. //test.holo.host:4141")
