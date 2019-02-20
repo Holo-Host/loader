@@ -1,10 +1,10 @@
-describe("addConnectionUrlScript", () => {
+describe("insertScripts", () => {
 
-  it("should add a <script> tag to an empty html document", () => {
+  it("should add the correct override script to a simple HTML string", () => {
   	htmlString = "<html><body>original content</body></html>"
-  	newString = addConnectionUrlScript(htmlString, "ws://")
+  	newString = insertScripts(htmlString, "ws://")
     expect(newString)
-    	.toBe("<html><head><script>window.holochainUrl=ws://</script></head><body>original content</body></html>");
+    	.toBe(`<html><head><script src="hClient.js">hClient.overrideWebClient(ws://)</script></head><body>original content</body></html>`);
   })
 
 })

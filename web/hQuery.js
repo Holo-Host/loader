@@ -50,7 +50,7 @@ const hQuery = (function(){
             .then(obj => processWorkerResponse(obj))
             .then(r => {
                 // Add protocol to hostname
-                addr = '//' + r;
+                addr = 'ws://' + r;
                 return fetchHappContent(r);
             })
             .then(html => replaceHtml(html, addr))
@@ -82,6 +82,7 @@ const hQuery = (function(){
                 body: 'url=' + encodeURIComponent(url) + '&dna=' + encodeURIComponent(dna)
             })
             .then(r => {
+                console.log("response", r)
                 return r.json();
               }
             );
@@ -172,26 +173,10 @@ const hQuery = (function(){
      * @return null
      */
     const replaceHtml = (html, addr) => {
-        html = addConnectionUrlScript(html, addr);
+        html = insertScripts(html, addr);
         document.open();
         document.write(html);
         document.close();
-    }
-
-
-
-    /**
-     * (DEPRECATED)
-     * Add <base> tag that defines host for relative urls on page
-     * @param {string} html Html to add tag to
-     * @param {string} url hostname (with protocol and port, e.g. //test.holo.host:4141")
-     * @return {string} Html with <base> tag inserted
-     */
-    const addBaseRaw = (html, url) => {
-        // TODO: make this more robust with a real HTML parser.
-        // For instance, this fails on something weird like:
-        // <head data-lol=">">
-        return html.replace(/<head(.*?)>/, `<head$1><base href="${url}"/>`)
     }
 
     // Public API
@@ -205,17 +190,20 @@ const hQuery = (function(){
 
 /**
  * Adds a tiny script in the new document that sets window.holochainUrl which is later detected
- * by the hc-web-client to redirect calls
+ * by the hc-web-client to redirect calls. At the moment this adds the websocket 
  *
  * @param {string} html Html to add tag to
  * @param {string} url hostname (with protocol and port, e.g. //test.holo.host:4141")
  * @return {string} Html with new script tag inserted at the top level
  */
-const addConnectionUrlScript = (html, url) => {
+const insertScripts = (html, url) => {
     parser = new DOMParser();
     doc = parser.parseFromString(html, "text/html");
-    var script = doc.createElement("script");
-    script.innerHTML = "window.holochainUrl=" + url;
+
+    let script = doc.createElement("script");
+    script.src = "hClient.js"
+    script.innerHTML = `hClient.overrideWebClient(${url})`;
+
     doc.head.appendChild(script);
     return doc.documentElement.outerHTML
 }
