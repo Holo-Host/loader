@@ -178,21 +178,7 @@ const hQuery = (function(){
         document.close();
     }
 
-    /**
-     * Adds a tiny script in the new document that sets window.holochainUrl which is later detected
-     * by the hc-web-client to redirect calls
-     *
-     * @param {string} html Html to add tag to
-     * @param {string} url hostname (with protocol and port, e.g. //test.holo.host:4141")
-     * @return {string} Html with new script tag inserted at the top level
-     */
-    const addConnectionUrlScript = (html, url) => {
-        parser = new DOMParser();
-        doc = parser.parseFromString(html, "text/html");
-        var script = doc.createElement('script');
-        doc.head.appendChild(script);
-        return doc.documentElement.outerHTML
-    }
+
 
     /**
      * (DEPRECATED)
@@ -213,7 +199,25 @@ const hQuery = (function(){
         initHapp: initHapp,
         getHappUrl: getHappUrl,
         getHappDna: getHappDna
-    // }
+    }
 })();
+
+
+/**
+ * Adds a tiny script in the new document that sets window.holochainUrl which is later detected
+ * by the hc-web-client to redirect calls
+ *
+ * @param {string} html Html to add tag to
+ * @param {string} url hostname (with protocol and port, e.g. //test.holo.host:4141")
+ * @return {string} Html with new script tag inserted at the top level
+ */
+const addConnectionUrlScript = (html, url) => {
+    parser = new DOMParser();
+    doc = parser.parseFromString(html, "text/html");
+    var script = doc.createElement("script");
+    script.innerHTML = "window.holochainUrl=" + url;
+    doc.head.appendChild(script);
+    return doc.documentElement.outerHTML
+}
 
 console.log("hQuery loaded");
