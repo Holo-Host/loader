@@ -11,7 +11,6 @@
 
 const hClient = (function(){
 
-
     /**
      * Wraps and overwrites the current holochainClient attached to the window
      * Keeps the same functionaltiy but adds preCall and postCall hooks and also forces
@@ -26,6 +25,8 @@ const hClient = (function(){
 
         window.holochainClient = {
             connect: () => holochainClient.connect(url).then(({call, close, ws}) => {
+                // TODO: Add callbacks to the ws object for signing entries as the interceptor requests it
+                // This is sketchy AF but ok for closed alpha until we get a lite client
                 return {
                     call: (callString) => (params) => {
                         const {callString: newCallString, params: newParams} = preCall(callString, params);
@@ -38,26 +39,30 @@ const hClient = (function(){
         };
     }
 
-    // /**
-    //  * Preprocesses the callString and params before making a call
-    //  *
-    //  * @param      {string}  callString  The call string e.g. dna/zome/function
-    //  * @param      {Object}  params      The parameters 
-    //  * @return     {callString, params}  The updated callString and params passed to call
-    //  */
-    // const preCall = (callString, params) => {
-    //     return {callString, params};
-    // }
+    /**
+     * Preprocesses the callString and params before making a call
+     *
+     * @param      {string}  callString  The call string e.g. dna/zome/function
+     * @param      {Object}  params      The parameters 
+     * @return     {callString, params}  The updated callString and params passed to call
+     */
+    const preCall = (callString, params) => {
+        // TODO: sign the call and add the signature to the params object
+        return {callString, params};
+    }
 
-    // /**
-    //  * Postprocess the response of a call before returning it to the UI
-    //  *
-    //  * @param      {string}  response  The response of the call
-    //  * @return     {string}  Updated response
-    //  */
-    // const postCall = (response) => {
-    //     return response;
-    // }
+    /**
+     * Postprocess the response of a call before returning it to the UI
+     *
+     * @param      {string}  response  The response of the call
+     * @return     {string}  Updated response
+     */
+    const postCall = (response) => {
+        // TODO: Check response for authentication error to see if login is required
+        // TODO: Sign the response and sent it back to the interceptor
+        // TODO: Unpack the response to expose to the UI code (make it look like a regular holochain call)
+        return response;
+    }
 
     return {
         overrideWebClient

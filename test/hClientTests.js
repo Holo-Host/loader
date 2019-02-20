@@ -26,12 +26,16 @@ describe("hClient: basic test", () => {
   	});
   	expect(firstCallResult).toBe("original result");
 
+  	
+
 
   	// use hClient to override
   	const url = "ws://test"
   	const preCall = (callString, params) => ({callString, params});
-  	const postCall = response => response;
+  	const postCall = response => "override response";
   	hClient.overrideWebClient(url, preCall, postCall);
+
+
 
 	// make a call with the overriden version
   	let secondCallResult;
@@ -41,7 +45,7 @@ describe("hClient: basic test", () => {
   			secondCallResult = result
   		});
   	});
-  	expect(secondCallResult).toBe("original result");
+  	expect(secondCallResult).toBe("override response");
 
 
   })
