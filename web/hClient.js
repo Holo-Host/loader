@@ -11,43 +11,53 @@
 
 const hClient = (function(){
 
-    const overrideWebClient = (url) => {
-        const holochainClient = win.holochainClient;
 
-        win.holochainClient = {
-            connect: holochainClient.connect(url).then(({call, close, ws}) => {
+    /**
+     * Wraps and overwrites the current holochainClient attached to the window
+     * Keeps the same functionaltiy but adds preCall and postCall hooks and also forces
+     * connect to go to a given URL
+     *
+     * @param      {<type>}    url       The url to connect to
+     * @param      {Function}  preCall   The pre call funciton
+     * @param      {Function   postCall  The post call function
+     */
+    const overrideWebClient = (url, preCall, postCall) => {
+        const holochainClient = window.holochainClient;
+
+        window.holochainClient = {
+            connect: () => holochainClient.connect(url).then(({call, close, ws}) => {
                 return {
                     call: (callString) => (params) => {
-                        let {callString, params} = preCall(callString, params);
-                        return call(callString)(params).then(postCall);
+                        const {callString: newCallString, params: newParams} = preCall(callString, params);
+                        return call(newCallString)(newParams).then(postCall);
                     },
-                    close: () => {},
-                    ws: () => {},
+                    close,
+                    ws,
                 }
             })
         };
     }
 
-    /**
-     * Preprocesses the callString and params before making a call
-     *
-     * @param      {string}  callString  The call string e.g. dna/zome/function
-     * @param      {Object}  params      The parameters 
-     * @return     {callString, params}  The updated callString and params passed to call
-     */
-    const preCall = (callString, params) => {
-        return {callString, params};
-    }
+    // /**
+    //  * Preprocesses the callString and params before making a call
+    //  *
+    //  * @param      {string}  callString  The call string e.g. dna/zome/function
+    //  * @param      {Object}  params      The parameters 
+    //  * @return     {callString, params}  The updated callString and params passed to call
+    //  */
+    // const preCall = (callString, params) => {
+    //     return {callString, params};
+    // }
 
-    /**
-     * Postprocess the response of a call before returning it to the UI
-     *
-     * @param      {string}  response  The response of the call
-     * @return     {string}  Updated response
-     */
-    const postCall = (response) => {
-        return response;
-    }
+    // /**
+    //  * Postprocess the response of a call before returning it to the UI
+    //  *
+    //  * @param      {string}  response  The response of the call
+    //  * @return     {string}  Updated response
+    //  */
+    // const postCall = (response) => {
+    //     return response;
+    // }
 
     return {
         overrideWebClient

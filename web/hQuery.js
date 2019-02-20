@@ -179,33 +179,37 @@ const hQuery = (function(){
         document.close();
     }
 
+
+    /**
+     * Adds a script that imports hClient and overrides the window web client.
+     * Effectively enables a holochain app to be holo compatible
+     *
+     * @param {string} html Html to add tag to
+     * @param {string} url hostname (with protocol and port, e.g. //test.holo.host:4141")
+     * @return {string} Html with new script tag inserted at the top level
+     */
+    const insertScripts = (html, url) => {
+        parser = new DOMParser();
+        doc = parser.parseFromString(html, "text/html");
+
+        let script = doc.createElement("script");
+        script.src = "hClient.js"
+        script.innerHTML = `hClient.overrideWebClient(${url})`;
+
+        doc.head.appendChild(script);
+        return doc.documentElement.outerHTML
+    }
+
     // Public API
     return {
-        initHapp: initHapp,
-        getHappUrl: getHappUrl,
-        getHappDna: getHappDna
+        initHapp,
+        getHappUrl,
+        getHappDna,
+        insertScripts,
     }
 })();
 
 
-/**
- * Adds a script that imports hClient and overrides the window web client.
- * Effectively enables a holochain app to be holo compatible
- *
- * @param {string} html Html to add tag to
- * @param {string} url hostname (with protocol and port, e.g. //test.holo.host:4141")
- * @return {string} Html with new script tag inserted at the top level
- */
-const insertScripts = (html, url) => {
-    parser = new DOMParser();
-    doc = parser.parseFromString(html, "text/html");
 
-    let script = doc.createElement("script");
-    script.src = "hClient.js"
-    script.innerHTML = `hClient.overrideWebClient(${url})`;
-
-    doc.head.appendChild(script);
-    return doc.documentElement.outerHTML
-}
 
 console.log("hQuery loaded");
