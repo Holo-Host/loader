@@ -17,16 +17,18 @@ const hClient = (function(){
      * connect to go to a given URL
      *
      * @param      {<type>}    url       The url to connect to
-     * @param      {Function}  preCall   The pre call funciton
-     * @param      {Function   postCall  The post call function
+     * @param      {Function}  preCall   The pre call funciton. Takes the callString and params and returns new callString and params
+     * @param      {Function   postCall  The post call function. Takes the response and returns the new response
+     * @param      {Function   postConnect  The post connect function. Takes a RPC-websockets object
      */
-    const overrideWebClient = (url, preCall, postCall) => {
+    const overrideWebClient = (url, preCall, postCall, postConnect) => {
         const holochainClient = window.holochainClient;
 
         window.holochainClient = {
             connect: () => holochainClient.connect(url).then(({call, close, ws}) => {
                 // TODO: Add callbacks to the ws object for signing entries as the interceptor requests it
                 // This is sketchy AF but ok for closed alpha until we get a lite client
+                postConnect(ws);
                 return {
                     call: (callString) => (params) => {
                         const {callString: newCallString, params: newParams} = preCall(callString, params);
@@ -62,6 +64,15 @@ const hClient = (function(){
         // TODO: Sign the response and sent it back to the interceptor
         // TODO: Unpack the response to expose to the UI code (make it look like a regular holochain call)
         return response;
+    }
+
+    /**
+     * Add any new callbacks to the websocket object or make calls immediatly after connecting
+     *
+     * @param      {<type>}  ws      { rpc=websockets object }
+     */
+    const postConnect = (ws) => {
+
     }
 
     return {

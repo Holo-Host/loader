@@ -33,7 +33,8 @@ describe("hClient: basic test", () => {
   	const url = "ws://test"
   	const preCall = (callString, params) => ({callString, params});
   	const postCall = response => "override response";
-  	hClient.overrideWebClient(url, preCall, postCall);
+  	const postConnect = ws => {};
+  	hClient.overrideWebClient(url, preCall, postCall, postConnect);
 
 
 
