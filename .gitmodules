@@ -1,0 +1,3 @@
+[submodule "web/dpki-lite.js"]
+	path = web/dpki-lite.js
+	url = https://github.com/Holo-Host/dpki-lite.js

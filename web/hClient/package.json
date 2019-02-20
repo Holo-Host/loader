@@ -1,0 +1,11 @@
+{
+  "name": "hclient",
+  "version": "0.0.1",
+  "description": "Client side lib injected by holo loader",
+  "main": "index.js",
+  "scripts": {
+    "build": "parcel build ./src/index.js"
+  },
+  "author": "",
+  "license": "GPL-3"
+}
