@@ -4,17 +4,19 @@
 	<title>Holo sign in</title>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<link rel="stylesheet" type="text/css" href="css/util.css">
-	<link rel="stylesheet" type="text/css" href="css/main.css">
-	<link rel="stylesheet" type="text/css" href="node_modules/dialog-polyfill/dialog-polyfill.css" />
 </head>
 <body>
 
-<!-- 	<div>
-		Some other random content
-	</div> -->
 
 	<dialog class="wrap-login100 p-l-55 p-r-55 p-t-65 p-b-50 holo-dialog" open>
+		<!-- package styles inline -->
+		<style type="text/styl">
+		@font-face
+			font-family: OpenSans-Regular;
+			src: url('./fonts/OpenSans/OpenSans-Regular.ttf'); 
+		@import "./css/main.css";
+		@import "./css/util.css";
+		</style>
 		<form class="login100-form validate-form">
 			<span class="login100-form-title p-b-33">
 				Sign in to Holo
