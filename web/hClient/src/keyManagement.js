@@ -9,6 +9,7 @@
  */
 
 const { Keypair, RootSeed, util } = require("../../dpki-lite.js/packages/dpki-lite/lib");
+const { storeKeyBundle, loadKeyBundle } = require("./persistence");
 
 /**
  * Checks the browser storage for a key pair for this hApp ID
@@ -17,24 +18,21 @@ const { Keypair, RootSeed, util } = require("../../dpki-lite.js/packages/dpki-li
  * page for readwrite keys
  *
  * @param      {<type>}   hAppId    The application identifier
- * @param      {boolean}  readonly  The readonly
+ * @param      {boolean}  canWrite  If a write key is required or if a readonly will suffice
  * @return     {dpki-lite::Keypair}   The loaded or generated keypair
  */
-const getOrGenerateKey = async (hAppId, readonly=true) => {
+const getOrGenerateKey = async (hAppId, canWrite=true) => {
 
-	if (readonly) {
-		
-		const seed = await util.randomBytes(32)
-		console.log("seed is:", seed)
-		const keypair = Keypair.newFromSeed(seed)
-
-		const passphrase = "";
-		const hint = "There is no passphrase";
-		storeBundle(hAppId, keypair.getBundle(passphrase, hint), readonly=true);
-
+	if (canWrite) {
+		// try and load a write key and if there is none or a readonly then trigger login
 	} else {
-
+		// try and load a readonly key or just generate and store a new random one
 	}
+	const seed = await util.randomBytes(32);
+	console.log("seed is: ", seed);
+	const keypair = await Keypair.newFromSeed(seed);
+	console.log("keypair is: ", keypair);
+	return keypair;
 }
 
 

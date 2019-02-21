@@ -63,6 +63,8 @@ const loadKeyBundle = (hAppId, hostAddress) => {
 
 
 module.exports = {
+	storeHosts,
+	loadHosts,
 	storeKeyBundle,
 	loadKeyBundle,
 };

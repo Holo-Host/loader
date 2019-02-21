@@ -50,4 +50,12 @@ describe("hClient: basic test", () => {
 
 
   })
+
+
+  it("should be able to call key generation functions", async () => {
+  	let keypair = await hClient.getOrGenerateKey();
+  	console.log(keypair);
+  })
+
+
 })
