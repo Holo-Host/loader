@@ -1,3 +1,4 @@
+require('babel-polyfill');
 /**
  * hClient.js
  * An API compatible drop-in for hc-web-client
@@ -11,7 +12,7 @@
 
 module.exports = hClient = (function(){
 
-
+    const { getOrGenerateKey } = require("./keyManagement");
 
     /**
      * Wraps and overwrites the current holochainClient attached to the window
@@ -82,7 +83,8 @@ module.exports = hClient = (function(){
     }
 
     return {
-        overrideWebClient
+        overrideWebClient,
+        getOrGenerateKey,
     };
 
 })();

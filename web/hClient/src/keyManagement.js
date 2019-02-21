@@ -8,7 +8,7 @@
  * @return     {string}  The or generate readonly key.
  */
 
-const { Keypair, RootSeed } = require("../../dpki-lite.js/packages/dpki-lite/js/dpki-lite");
+const { Keypair, RootSeed, util } = require("../../dpki-lite.js/packages/dpki-lite/lib");
 
 /**
  * Checks the browser storage for a key pair for this hApp ID
@@ -20,9 +20,21 @@ const { Keypair, RootSeed } = require("../../dpki-lite.js/packages/dpki-lite/js/
  * @param      {boolean}  readonly  The readonly
  * @return     {dpki-lite::Keypair}   The loaded or generated keypair
  */
-const getOrGenerateKey = (hAppId, readonly=false) => {
-	const rs = await RootSeed.newRandom();
-	return Keypair.newFromSeed(rs);
+const getOrGenerateKey = async (hAppId, readonly=true) => {
+
+	if (readonly) {
+		
+		const seed = await util.randomBytes(32)
+		console.log("seed is:", seed)
+		const keypair = Keypair.newFromSeed(seed)
+
+		const passphrase = "";
+		const hint = "There is no passphrase";
+		storeBundle(hAppId, keypair.getBundle(passphrase, hint), readonly=true);
+
+	} else {
+
+	}
 }
 
 
