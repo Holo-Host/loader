@@ -9,7 +9,9 @@
  *     - Intercepting 401 responses to display a login screen
  */
 
-const hClient = (function(){
+module.exports = hClient = (function(){
+
+
 
     /**
      * Wraps and overwrites the current holochainClient attached to the window
