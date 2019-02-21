@@ -1,13 +1,18 @@
 
 (function () {
 
-    var $ = require("jquery");
+
+    const $ = require("jquery");
+    const dialogPolyfill = require("dialog-polyfill");
+
+    const modal = document.querySelector('.holo-dialog');
+    dialogPolyfill.registerDialog(modal);
 
     /*==================================================================
     [ Validate ]*/
     var input = $('.validate-input .input100');
 
-    $('.validate-form').on('submit',function(e) {
+    $('.validate-form').on('submit', function(e) {
         e.preventDefault()
 
         console.log("validating function")
@@ -44,7 +49,7 @@
             }
         }
     }
-    
+
 
     function showValidate(input) {
         var thisAlert = $(input).parent();

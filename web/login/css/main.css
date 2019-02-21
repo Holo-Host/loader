@@ -1,5 +1,26 @@
 
+.holo-dialog {
+  background-color: var(--bg);
+  color: var(--text-color);
+  text-align: center;
+  border: none;
+  padding: 2rem;
+  border-radius: 6px;
+  box-sizing: border-box;
+  box-shadow: 0 0 40px rgba(0,0,0,0.1), 0 0 10px rgba(0,0,0,0.25);
+  max-width: 90vw;
+  position: fixed;
+  top: 50%;
+  transform: translate(0, -50%);
+}
 
+.holo-dialog::backdrop {
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.holo-dialog + .backdrop {
+  background-color: rgba(0, 0, 0, 0.4);
+}
 
 
 /*//////////////////////////////////////////////////////////////////
@@ -10,145 +31,29 @@
   src: url('../fonts/OpenSans/OpenSans-Regular.ttf'); 
 }
 
-
-
 /*//////////////////////////////////////////////////////////////////
-[ RESTYLE TAG ]*/
-
-* {
-	margin: 0px; 
-	padding: 0px; 
-	box-sizing: border-box;
-}
-
-body, html {
-	height: 100%;
-	font-family: OpenSans-Regular, sans-serif;
-}
-
-/*---------------------------------------------*/
-a {
-	font-family: OpenSans-Regular;
-	font-size: 14px;
-	line-height: 1.7;
-	color: #666666;
-	margin: 0px;
-	transition: all 0.4s;
-	-webkit-transition: all 0.4s;
-  -o-transition: all 0.4s;
-  -moz-transition: all 0.4s;
-}
-
-a:focus {
-	outline: none !important;
-}
-
-a:hover {
-	text-decoration: none;
-}
-
-/*---------------------------------------------*/
-h1,h2,h3,h4,h5,h6 {
-	margin: 0px;
-}
-
-p {
-	font-family: OpenSans-Regular;
-	font-size: 14px;
-	line-height: 1.7;
-	color: #666666;
-	margin: 0px;
-}
-
-ul, li {
-	margin: 0px;
-	list-style-type: none;
-}
 
 
 /*---------------------------------------------*/
-input {
+.holo-dialog input {
 	outline: none;
 	border: none;
 }
 
-textarea {
-  outline: none;
-  border: none;
-}
-
-textarea:focus, input:focus {
-  border-color: transparent !important;
-}
-
-input::-webkit-input-placeholder { color: #666666;}
-input:-moz-placeholder { color: #666666;}
-input::-moz-placeholder { color: #666666;}
-input:-ms-input-placeholder { color: #666666;}
-
-textarea::-webkit-input-placeholder { color: #666666;}
-textarea:-moz-placeholder { color: #666666;}
-textarea::-moz-placeholder { color: #666666;}
-textarea:-ms-input-placeholder { color: #666666;}
-
 /*---------------------------------------------*/
-button {
+.login100-form-btn {
 	outline: none !important;
 	border: none;
 	background: transparent;
 }
 
-button:hover {
+.login100-form-btn {
 	cursor: pointer;
-}
-
-iframe {
-	border: none !important;
-}
-
-/*//////////////////////////////////////////////////////////////////
-[ Utility ]*/
-.txt1 {
-  font-family: OpenSans-Regular;
-  font-size: 15px;
-  line-height: 1.4;
-  color: #999999;
-}
-
-.txt2 {
-  font-family: OpenSans-Regular;
-  font-size: 15px;
-  line-height: 1.4;
-  color: #4272d7;
-}
-
-.hov1:hover {
-  text-decoration: underline;
 }
 
 
 /*//////////////////////////////////////////////////////////////////
 [ login ]*/
-
-.limiter {
-  width: 100%;
-  margin: 0 auto;
-}
-
-.container-login100 {
-  width: 100%;  
-  min-height: 100vh;
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -moz-box;
-  display: -ms-flexbox;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-items: center;
-  padding: 15px;
-  background: #e9faff;
-}
 
 .wrap-login100 {
   width: 500px;
