@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "description": "Client side lib injected by holo loader",
   "scripts": {
-    "build": "parcel build ./src/index.html"
+    "build": "parcel build ./index.html --no-minify"
   },
   "author": "",
   "license": "GPL-3",
@@ -14,6 +14,7 @@
     "cssnano": "^4.1.10"
   },
   "dependencies": {
-    "babel-polyfill": "^6.26.0"
+    "babel-polyfill": "^6.26.0",
+    "jquery": "^3.3.1"
   }
 }
