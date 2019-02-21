@@ -1,7 +1,7 @@
 require('babel-polyfill');
 /**
  * hClient.js
- * An API compatible drop-in for hc-web-client
+ * An API compatible drop-in for hc-web-client. This is inserted by the loader on page load and overrideWebClient() called
  * 
  * Exports a single function, overrideWebClient, that will instantly holo-ify a holochain app.
  * It adds the additional functionality of
