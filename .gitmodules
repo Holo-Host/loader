@@ -1,0 +1,6 @@
+[submodule "web/--force"]
+	path = web/--force
+	url = https://github.com/Holo-Host/dpki-lite.js
+[submodule "web/dpki-lite.js"]
+	path = web/dpki-lite.js
+	url = https://github.com/Holo-Host/dpki-lite.js
