@@ -1,4 +1,5 @@
 const hClient = require("../web/hClient/src/index.js");
+const keyManagement = require("../web/hClient/src/keyManagement.js");
 
 describe("hClient: basic test", () => {
   
@@ -54,11 +55,32 @@ describe("hClient: basic test", () => {
   })
 
 
-  it("should be able to call key generation functions", async () => {
-  	let keypair = await hClient.generateReadonlyKey();
-  	console.log(keypair);
-    expect(1).toBe(1);
-  })
-
 
 })
+
+describe("keyManagement", () => {
+
+  it("Can retrieve 32 bytes of entropy from saltmine", async () => {
+    let entropy = await keyManagement.getRemoteEntropy();
+    console.log(entropy);
+    expect(entropy.byteLength).toBe(32);
+  });
+
+  it("Can get 32 bytes of local entropy from webcrypto or sodium as a fallback", async () => {
+    let entropy = await keyManagement.getLocalEntropy();
+    console.log(entropy);
+    expect(entropy.byteLength).toBe(32);
+  });
+
+  it("Can generate a local readonly keypair", async () => {
+    let keypair = await keyManagement.generateReadonlyKeypair();
+    console.log(keypair);
+  });
+
+  // it("Can generate a new readwrite keypair", async () => {
+  //   let keypair = await keyManagement.generateNewReadwriteKeypair("test@test.com", "123abc");
+  //   console.log(keypair);
+  // });
+
+})
+
