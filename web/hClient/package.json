@@ -14,6 +14,7 @@
     "cssnano": "^4.1.10"
   },
   "dependencies": {
+    "@holochain/hcid-js": "0.0.3-alpha",
     "babel-polyfill": "^6.26.0"
   }
 }

@@ -201,12 +201,16 @@ const hQuery = (function(){
     }
 
     // Public API
-    return {
+    hLoader = {
         initHapp,
         getHappUrl,
         getHappDna,
         insertScripts,
     }
-})();
 
-module.exports = hQuery;
+
+    if (typeof module !== 'undefined' && typeof module.exports !== 'undefined')
+        module.exports = hLoader;
+    else
+        window.hLoader = hLoader;
+})();

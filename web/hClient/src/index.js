@@ -84,7 +84,6 @@ module.exports = hClient = (function(){
 
     return {
         overrideWebClient,
-        generateReadonlyKey,
     };
 
 })();
