@@ -209,7 +209,4 @@ const hQuery = (function(){
     }
 })();
 
-
-
-
-console.log("hQuery loaded");
+module.exports = hQuery;

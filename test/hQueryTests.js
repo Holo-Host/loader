@@ -1,5 +1,8 @@
+const hQuery = require("../web/hQuery.js");
+
 describe("hQuery: insertScripts", () => {
 
+  
   it("should add the correct override script to a simple HTML string", () => {
   	htmlString = "<html><body>original content</body></html>"
   	newString = hQuery.insertScripts(htmlString, "ws://")

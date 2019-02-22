@@ -1,5 +1,7 @@
-describe("hClient: basic test", () => {
+const hClient = require("../web/hClient/src/index.js");
 
+describe("hClient: basic test", () => {
+  
   it("should be able to override window.holochainClient", async () => {
 
   	// mock holochainClient
@@ -53,8 +55,9 @@ describe("hClient: basic test", () => {
 
 
   it("should be able to call key generation functions", async () => {
-  	let keypair = await hClient.getOrGenerateKey();
+  	let keypair = await hClient.generateReadonlyKey();
   	console.log(keypair);
+    expect(1).toBe(1);
   })
 
 

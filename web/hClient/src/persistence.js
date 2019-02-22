@@ -43,28 +43,9 @@ const loadHosts = (hAppId, writeAccess) => {
 	}
 }
 
-const storeKeyBundle = (hAppId, hostAddress, keyBundle, canWrite) => {
-	try {
-		localStorage[hAppId][hostAddress] = {keyBundle, canWrite};
-	} catch (e) {
-		console.err(e);
-		throw e;
-	}
-}
-
-const loadKeyBundle = (hAppId, hostAddress) => {
-	try {
-		return localStorage[hAppId][hostAddress];
-	} catch (e) {
-		throw e;
-	}
-}
-
 
 
 module.exports = {
 	storeHosts,
 	loadHosts,
-	storeKeyBundle,
-	loadKeyBundle,
 };
