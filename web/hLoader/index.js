@@ -194,7 +194,7 @@ const hQuery = (function(){
 
         let script = doc.createElement("script");
         script.src = "hClient.js"
-        script.innerHTML = `hClient.overrideWebClient(${url})`;
+        script.innerHTML = `hClient.init(${url})`;
 
         doc.head.appendChild(script);
         return doc.documentElement.outerHTML
@@ -208,7 +208,7 @@ const hQuery = (function(){
         insertScripts,
     }
 
-
+    // required for browser testing
     if (typeof module !== 'undefined' && typeof module.exports !== 'undefined')
         module.exports = hLoader;
     else

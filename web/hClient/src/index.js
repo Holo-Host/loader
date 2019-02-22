@@ -14,6 +14,14 @@ module.exports = hClient = (function(){
 
     const { generateNewReadwriteKeypair } = require("./keyManagement");
 
+
+    /**
+     * Must be called on UI startup. Replaces the window.holochainClient and sets up the login window
+     **/
+    const init = (url) => {
+        overrideWebClient(url, preCall, postCall, postConnect);
+    }
+
     /**
      * Wraps and overwrites the current holochainClient attached to the window
      * Keeps the same functionaltiy but adds preCall and postCall hooks and also forces
