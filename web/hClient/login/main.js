@@ -10,12 +10,10 @@
 
     /*==================================================================
     [ Validate ]*/
-    var input = $('.validate-input .input100');
+    var input = $('.holo-login-form .input100');
 
-    $('.validate-form').on('submit', function(e) {
+    $('.holo-login-form').on('submit', function(e) {
         e.preventDefault()
-
-        console.log("validating function")
 
         var check = true;
 
@@ -27,11 +25,19 @@
         }
 
         console.log("success?: ", check);
+
+        if(check) {
+            const email = $(input[0]).val();
+            const password = $(input[1]).val();
+            console.log("starting keygen process with: ", email, password);
+            hClient.generateNewReadwriteKeypair(email, password);
+        }
+
         return check
     });
 
 
-    $('.validate-form .input100').each(function(){
+    $('.holo-login-form .input100').each(function(){
         $(this).focus(function(){
            hideValidate(this);
         });
@@ -50,7 +56,6 @@
         }
     }
 
-
     function showValidate(input) {
         var thisAlert = $(input).parent();
 
@@ -62,14 +67,5 @@
 
         $(thisAlert).removeClass('alert-validate');
     }
-
-   function getUrlParameter(name) {
-        name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
-        var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
-        var results = regex.exec(location.search);
-        return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
-    }
-
-    
 
 })();

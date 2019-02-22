@@ -12,7 +12,7 @@ require('babel-polyfill');
 
 module.exports = hClient = (function(){
 
-    const { generateReadonlyKey } = require("./keyManagement");
+    const { generateNewReadwriteKeypair } = require("./keyManagement");
 
     /**
      * Wraps and overwrites the current holochainClient attached to the window
@@ -84,6 +84,7 @@ module.exports = hClient = (function(){
 
     return {
         overrideWebClient,
+        generateNewReadwriteKeypair,
     };
 
 })();
