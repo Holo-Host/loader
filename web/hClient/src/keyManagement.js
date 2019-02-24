@@ -105,9 +105,12 @@ const XorUint8Array = (a, b) => {
  *
  * @return     {dpki-lite::Keypair}  The generated keypair object
  */
-const generateReadonlyKeypair = async () => {
-    const remoteEntropy = await getRemoteEntropy();
-    const localEntropy = await getLocalEntropy();
+const generateReadonlyKeypair = async (
+    remoteEntropyGenerator=getRemoteEntropy,
+    localEntropyGenerator=getLocalEntropy
+) => {
+    const remoteEntropy = await remoteEntropyGenerator();
+    const localEntropy = await localEntropyGenerator();
     const seed = XorUint8Array(remoteEntropy, localEntropy);
     const keypair = await Keypair.newFromSeed(seed);
     return keypair;
@@ -120,13 +123,20 @@ const generateReadonlyKeypair = async () => {
  * @param      {string}  password  The password
  * @return     {dpki-lite::Keypair}  The generated keypair object
  */
-const generateNewReadwriteKeypair = async (email, password) => {
-    const remoteEntropy = await getRemoteEntropy();
-    const localEntropy = await getLocalEntropy();
+const generateNewReadwriteKeypair = async (
+    email,
+    password,
+    remoteEntropyGenerator=getRemoteEntropy,
+    localEntropyGenerator=getLocalEntropy,
+    saltRegistrationCallback=registerSalt
+) => {
+    const remoteEntropy = await remoteEntropyGenerator();
+    const localEntropy = await localEntropyGenerator();
     const salt = XorUint8Array(remoteEntropy, localEntropy);
-    const registeredSalt = await registerSalt(email, salt);
-    const seed = await pwHash(password, registeredSalt);
-    const keypair = await Keypair.newFromSeed(seed);
+    const registeredSalt = await saltRegistrationCallback(email, salt);
+    // Unsure why pwHash requires 16 bytes of salt not 32. Ask about this
+    const { hash } = await pwHash(password, registeredSalt.slice(0,16));
+    const keypair = await Keypair.newFromSeed(hash);
     return keypair;
 }
 
@@ -138,10 +148,14 @@ const generateNewReadwriteKeypair = async (email, password) => {
  * @param      {string}  password  The password
  * @return     {dpki-lite::Keypair}  The generated keypair object
  */
-const regenerateReadwriteKeypair = async (email, password) => {
-    const registeredSalt = await getRegisteredSalt(email);
-    const seed = await pwHash(password, registeredSalt);
-    const keypair = await Keypair.newFromSeed(seed);
+const regenerateReadwriteKeypair = async (
+    email,
+    password,
+    getRegisteredSaltCallback=getRegisteredSalt
+) => {
+    const registeredSalt = await getRegisteredSaltCallback(email);
+    const { hash } = await pwHash(password, registeredSalt.slice(0,16));
+    const keypair = await Keypair.newFromSeed(hash);
     return keypair;
 }
 
@@ -151,4 +165,5 @@ module.exports = {
     getLocalEntropy,
 	generateReadonlyKeypair,
     generateNewReadwriteKeypair,
+    regenerateReadwriteKeypair,
 };

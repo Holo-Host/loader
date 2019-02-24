@@ -29,8 +29,6 @@ describe("hClient: basic test", () => {
   	});
   	expect(firstCallResult).toBe("original result");
 
-  	
-
 
   	// use hClient to override
   	const url = "ws://test"
@@ -38,7 +36,6 @@ describe("hClient: basic test", () => {
   	const postCall = response => "override response";
   	const postConnect = ws => ws;
   	hClient.overrideWebClient(url, preCall, postCall, postConnect);
-
 
 
 	// make a call with the overriden version
@@ -60,27 +57,48 @@ describe("hClient: basic test", () => {
 
 describe("keyManagement", () => {
 
-  it("Can retrieve 32 bytes of entropy from saltmine", async () => {
-    let entropy = await keyManagement.getRemoteEntropy();
-    console.log(entropy);
-    expect(entropy.byteLength).toBe(32);
-  });
 
   it("Can get 32 bytes of local entropy from webcrypto or sodium as a fallback", async () => {
     let entropy = await keyManagement.getLocalEntropy();
-    console.log(entropy);
     expect(entropy.byteLength).toBe(32);
   });
 
   it("Can generate a local readonly keypair", async () => {
-    let keypair = await keyManagement.generateReadonlyKeypair();
-    console.log(keypair);
+
+    let keypair = await keyManagement.generateReadonlyKeypair(
+      keyManagement.getLocalEntropy,
+      keyManagement.getLocalEntropy
+    );
+    expect(keypair._signPub.byteLength).toBe(32);
+    expect(keypair._signPriv.byteLength).toBe(64);
   });
 
-  // it("Can generate a new readwrite keypair", async () => {
-  //   let keypair = await keyManagement.generateNewReadwriteKeypair("test@test.com", "123abc");
-  //   console.log(keypair);
-  // });
+  it("Can generate a new readwrite keypair", async () => {
+
+    const mockSaltRegistration = (email, salt) => salt;
+
+    let keypair = await keyManagement.generateNewReadwriteKeypair(
+      "test@test.com",
+      "123abc",
+      keyManagement.getLocalEntropy,
+      keyManagement.getLocalEntropy,
+      mockSaltRegistration
+    );
+    expect(keypair._signPub.byteLength).toBe(32);
+    expect(keypair._signPriv.byteLength).toBe(64);
+  });
+
+  it("Can recover a keypair with an already registered salt", async () => {
+    const mockGetRegisteredSalt = (email) => keyManagement.getLocalEntropy();
+
+    let keypair = await keyManagement.regenerateReadwriteKeypair(
+      "test@test.com",
+      "123abc",
+      mockGetRegisteredSalt
+    );
+    expect(keypair._signPub.byteLength).toBe(32);
+    expect(keypair._signPriv.byteLength).toBe(64);
+  });
 
 })
 
