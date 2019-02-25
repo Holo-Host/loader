@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>holoclient test</title>
+  <meta charset="UTF-8"/>
+</head>
+<body>
+  <div id="nodes"></div>
+
+  <script type="text/javascript" src="holoclient.js"></script>
+
+  <script type="text/javascript">
+
+   node("8888","test-instance")
+   node("8889","test-instance")
+
+   function node(port,instance_id) {
+       const html = '<h3>Node for %% at @@</h3>\
+       <form id="node##">\
+       <input type="text" id="message##"/>\
+       <button id="share##">Share</button><br />\
+       <input type="text" id="address##"/>\
+       <button id="get##">Get</button><br />\
+       Base: <input type="text" id="base##"/>\
+       Target: <input type="text" id="target##"/>\
+       <button id="link##">Link</button><br />\
+       <input type="text" id="links_base##"/>\
+       <button id="get_links##">Get Links</button>\
+       </form>\
+       <button id="info##">Show Instances</button>\
+       <button id="close##">Close WS connection</button>\
+       <div id="output##"></div>'
+       const url =  'ws://localhost:'+port+"/"
+
+       const identifier = instance_id+"-"+port
+       div = document.getElementById('nodes')
+       html1 = replaceAll(html,"##",identifier)
+       html2 = replaceAll(html1,"%%",instance_id)
+       html3 = replaceAll(html2,"@@",port)
+       div.innerHTML += html3
+       window.holoclient.connect(url).then(({call, close}) => {
+           document.getElementById('share'+identifier).addEventListener('click', e => {
+               e.preventDefault()
+
+               const content = document.querySelector('#message'+identifier).value
+               call(instance_id, 'simple', 'share_item')({
+                   item: {content: content}
+               }).then(result => console.log(result))
+           })
+
+           document.getElementById('get'+identifier).addEventListener('click', e => {
+               e.preventDefault()
+
+               const content = document.querySelector('#address'+identifier).value
+               call(instance_id, 'simple', 'get_item')({
+                   address: content
+               }).then(result => console.log(result))
+           })
+
+           document.getElementById('link'+identifier).addEventListener('click', e => {
+               e.preventDefault()
+
+               const base = document.querySelector('#base'+identifier).value
+               const target = document.querySelector('#target'+identifier).value
+               call(instance_id, 'simple', 'add_link')({
+                   base: base,
+                   target: target
+               }).then(result => console.log(result))
+           })
+
+           document.getElementById('get_links'+identifier).addEventListener('click', e => {
+               e.preventDefault()
+
+               const base = document.querySelector('#links_base'+identifier).value
+               call(instance_id, 'simple', 'get_links')({
+                   base: base
+               }).then(result => console.log(result))
+           })
+
+
+           document.getElementById('info'+identifier).addEventListener('click', e => {
+               call('info/instances')().then(data => console.log(data))
+           })
+
+           document.getElementById('close'+identifier).addEventListener('click', e => {
+               close()
+           })
+       })
+   }
+
+
+
+   function getInstance(info, dna, agent) {
+       const entry = Object.entries(info)
+                           .find(([id, value]) => value.dna === dna && value.agent === agent)
+       if (entry) {
+           return entry[1].id
+       } else {
+           return null
+       }
+   }
+
+   function replaceAll(str, find, replace) {
+       return str.replace(new RegExp(find, 'g'), replace);
+   }
+  </script>
+</body>
+</html>
