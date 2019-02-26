@@ -49,8 +49,7 @@ const hQuery = (function(){
         queryForHosts(_url)
             .then(obj => processWorkerResponse(obj))
             .then(r => {
-                // Add protocol to hostname
-                addr = 'ws://' + r;
+                addr = r;
                 return fetchHappContent(r);
             })
             .then(html => replaceHtml(html, addr))
@@ -173,12 +172,30 @@ const hQuery = (function(){
      * @return null
      */
     const replaceHtml = (html, addr) => {
-        html = insertScripts(html, addr);
+        html = replaceBase(html, "http://"+addr);
+        html = insertScripts(html, "ws://"+addr);
         document.open();
         document.write(html);
         document.close();
     }
 
+    /**
+     * Add <base> tag that defines host for relative urls on page.
+     * This is required so the bootstrapped HTML is able to load its other static assets
+     * 
+     * @param {string} html Html to add tag to
+     * @param {string} url hostname (with protocol and port, e.g. //test.holo.host:4141")
+     * @return {string} Html with <base> tag inserted
+     */
+    const replaceBase = (html, url) => {
+        parser = new DOMParser();
+        doc = parser.parseFromString(html, "text/html");
+        let base = doc.createElement("base");
+        base.href = `${url}`;
+        base.innerHTML = "";
+        doc.head.appendChild(base);
+        return doc.documentElement.outerHTML;
+    }
 
     /**
      * Adds a script that imports hClient and overrides the window web client.
@@ -193,12 +210,13 @@ const hQuery = (function(){
         doc = parser.parseFromString(html, "text/html");
 
         let script = doc.createElement("script");
-        script.src = "hClient.js"
+        script.src = window.location.href+"Client.js"
         script.innerHTML = `hClient.init("${url}")`;
 
         doc.head.appendChild(script);
-        return doc.documentElement.outerHTML
+        return doc.documentElement.outerHTML;
     }
+
 
     // Public API
     hLoader = {
@@ -206,6 +224,7 @@ const hQuery = (function(){
         getHappUrl,
         getHappDna,
         insertScripts,
+        replaceBase,
     }
 
     // required for browser testing

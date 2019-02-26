@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "description": "Client side lib injected by holo loader",
   "scripts": {
-    "build": "parcel build ./src/index.js --global hClient"
+    "build": "parcel build ./src/index.js --global hClient -o ./dist/hClient.js"
   },
   "author": "",
   "license": "GPL-3",

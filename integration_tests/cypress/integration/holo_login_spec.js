@@ -20,22 +20,8 @@ describe('The integration test page', function() {
 		cy.route({
 			method: 'POST',
 			url: 'http://resolver.holohost.net/',
-			response: {"requestURL":"/","dna":"QmSimpleHappHash","hosts":["haaaaaaaash.holo.host/"]},
+			response: {"requestURL":"/","dna":"QmSimpleHappHash","hosts":["localhost:4000"]},
 		});
-
-		// mock the resolved holo host returning the html for the site and the holoclient.js
-		cy.route({
-			method: 'GET',
-			url: 'http://haaaaaaaash.holo.host',
-			response: "fixture:simpleapp.html",
-		});
-		cy.route({
-			method: 'GET',
-			url: 'http://haaaaaaaash.holo.host/holoclient.js',
-			response: "fixture:holoclient.js",
-		});
-
-		// hClient.js and login.html are effectively mocked by being hosted by the same webserver
 
 		cy.visit('/', {
 	      onBeforeLoad (win) {
