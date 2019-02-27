@@ -12,7 +12,7 @@ require('babel-polyfill');
 const hClient = (function() {
 
     const { generateNewReadwriteKeypair } = require("./keyManagement");
-    const { insertLoginHtml, registerLoginCallbacks } = require("./login");
+    const { insertLoginHtml, registerLoginCallbacks, showLoginDialog } = require("./login");
 
     const defaultWebsocketUrl = "ws://"+location.hostname+":"+location.port;
     
@@ -22,24 +22,33 @@ const hClient = (function() {
      * Keeps the same functionaltiy but adds preCall and postCall hooks and also forces
      * connect to go to a given URL
      *
-     * @param      {<type>}    url       The url to connect to
+     * @param      {Object} holochainClient A hc-web-client module to wrap
+     * @param      {string}    url       The url to connect to
      * @param      {Function}  preCall   The pre call funciton. Takes the callString and params and returns new callString and params
      * @param      {Function   postCall  The post call function. Takes the response and returns the new response
-     * @param      {Function   postConnect  The post connect function. Takes a RPC-websockets object and returns it
+     * @param      {Function   postConnect  The post connect function. Takes a RPC-websockets object and returns it preCall=preCall, postCall=postCall, postConnect=postConnect
      */
-    const makeWebClient = (holochainClient, url=defaultWebsocketUrl, preCall=preCall, postCall=postCall, postConnect=postConnect) => ({
-        connect: () => holochainClient.connect(url).then(({call, close, ws}) => {
-            ws = postConnect(ws);
-            return {
-                call: (callString) => (params) => {
-                    const {callString: newCallString, params: newParams} = preCall(callString, params);
-                    return call(newCallString)(newParams).then(postCall);
-                },
-                close,
-                ws,
-            }
-        })
-    })
+    const makeWebClient = (holochainClient, url, preCall, postCall, postConnect) => {
+
+        url = url || defaultWebsocketUrl;
+        preCall = preCall || _preCall;
+        postCall = postCall || _postCall;
+        postConnect = postConnect || _postConnect;
+
+        return {
+            connect: () => holochainClient.connect(url).then(({call, close, ws}) => {
+                ws = postConnect(ws);
+                return {
+                    call: (callString) => (params) => {
+                        const {callString: newCallString, params: newParams} = preCall(callString, params);
+                        return call(newCallString)(newParams).then(postCall);
+                    },
+                    close,
+                    ws,
+                }
+            })
+        }
+    }
 
 
 
@@ -50,7 +59,7 @@ const hClient = (function() {
      * @param      {Object}  params      The parameters 
      * @return     {callString, params}  The updated callString and params passed to call
      */
-    const preCall = (callString, params) => {
+    const _preCall = (callString, params) => {
         // TODO: sign the call and add the signature to the params object
         return {callString, params};
     }
@@ -61,7 +70,7 @@ const hClient = (function() {
      * @param      {string}  response  The response of the call
      * @return     {string}  Updated response
      */
-    const postCall = (response) => {
+    const _postCall = (response) => {
         // TODO: Check response for authentication error to see if login is required
         // TODO: Sign the response and sent it back to the interceptor
         // TODO: Unpack the response to expose to the UI code (make it look like a regular holochain call)
@@ -73,7 +82,7 @@ const hClient = (function() {
      *
      * @param      {<type>}  ws      { rpc=websockets object }
      */
-    const postConnect = (ws) => {
+    const _postConnect = (ws) => {
         // TODO: subscribe to a rpc-websocket callback for sigining actions
         // e.g.
         // ws.subscribe("sign_entry");
@@ -88,6 +97,7 @@ const hClient = (function() {
         generateNewReadwriteKeypair,
         insertLoginHtml,
         registerLoginCallbacks,
+        showLoginDialog,
     };
 
 })();

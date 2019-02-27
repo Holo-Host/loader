@@ -1,5 +1,6 @@
 
 const fs = require("fs");
+const $ = require("jquery"); // try and remove jquery in a refactor soon
 
 const insertLoginHtml = function() {
     // this will be inlined by parcel
@@ -17,9 +18,13 @@ const insertLoginHtml = function() {
     document.body.appendChild(templateClone); // this empty root now has your template
 }
 
+const showLoginDialog = function() {
+    const modal = document.querySelector('.holo-dialog');
+    modal.show();
+}
+
 const registerLoginCallbacks = function () {
 
-    const $ = require("jquery");
     const dialogPolyfill = require("dialog-polyfill");
 
     const modal = document.querySelector('.holo-dialog');
@@ -90,4 +95,5 @@ const registerLoginCallbacks = function () {
 module.exports = {
     insertLoginHtml,
     registerLoginCallbacks,
+    showLoginDialog,
 };
