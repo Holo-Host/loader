@@ -13,6 +13,9 @@ const hClient = (function() {
 
     const { generateNewReadwriteKeypair } = require("./keyManagement");
 
+    const defaultWebsocketUrl = "ws://"+location.hostname+":"+location.port;
+    
+
     /**
      * Wraps and returns a holochainClient module
      * Keeps the same functionaltiy but adds preCall and postCall hooks and also forces
@@ -23,7 +26,7 @@ const hClient = (function() {
      * @param      {Function   postCall  The post call function. Takes the response and returns the new response
      * @param      {Function   postConnect  The post connect function. Takes a RPC-websockets object and returns it
      */
-    const makeWebClient = (holochainClient, url=window.location.hostname, preCall=preCall, postCall=postCall, postConnect=postConnect) => ({
+    const makeWebClient = (holochainClient, url=defaultWebsocketUrl, preCall=preCall, postCall=postCall, postConnect=postConnect) => ({
         connect: () => holochainClient.connect(url).then(({call, close, ws}) => {
             ws = postConnect(ws);
             return {
@@ -36,6 +39,7 @@ const hClient = (function() {
             }
         })
     })
+
 
 
     /**
