@@ -6,10 +6,6 @@
  *       display nice Holo logo and something like "Connecting to Holo network..."
  */
 
-const fs = require("fs");
-
-const hClient = fs.readFileSync("../hClient/dist/hClient.js");
-
 (function(){
     // Networking settings etc
     const settings = {
@@ -177,7 +173,7 @@ const hClient = fs.readFileSync("../hClient/dist/hClient.js");
      */
     const replaceHtml = (html, addr) => {
         html = replaceBase(html, "http://"+addr);
-        html = insertScripts(html, "ws://"+addr);
+        // html = insertScripts(html, "ws://"+addr);
         document.open();
         document.write(html);
         document.close();

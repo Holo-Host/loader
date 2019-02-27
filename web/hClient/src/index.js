@@ -1,31 +1,20 @@
 require('babel-polyfill');
 /**
  * hClient.js
- * An API compatible drop-in for hc-web-client. This is inserted by the loader on page load and overrideWebClient() called
+ * An API compatible drop-in for hc-web-client. The module exports a functin that accepts an hc-web-client and returns a holo-fied version
  * 
- * Exports a single function, init(), that will instantly holo-ify a holochain app.
  * It adds the additional functionality of
  *     - Connecting to the correct holo-port
  *     - Signing all calls with the agents private key
  *     - Intercepting unauthorized responses to display a login screen
  */
 
-(function(){
+const hClient = (function() {
 
     const { generateNewReadwriteKeypair } = require("./keyManagement");
 
-
     /**
-     * Must be called on UI startup. Replaces the window.holochainClient and sets up the login window
-     **/
-    const init = (url) => {
-        console.log("Holo World! You are about to be Holo-fied...");
-        overrideWebClient(url, preCall, postCall, postConnect);
-        console.log("Holo-fication complete.");
-    }
-
-    /**
-     * Wraps and overwrites the current holochainClient attached to the window
+     * Wraps and returns a holochainClient module
      * Keeps the same functionaltiy but adds preCall and postCall hooks and also forces
      * connect to go to a given URL
      *
@@ -34,23 +23,20 @@ require('babel-polyfill');
      * @param      {Function   postCall  The post call function. Takes the response and returns the new response
      * @param      {Function   postConnect  The post connect function. Takes a RPC-websockets object and returns it
      */
-    const overrideWebClient = (url, preCall, postCall, postConnect) => {
-        const holochainClient = window.holochainClient;
+    const makeWebClient = (holochainClient, url=window.location.hostname, preCall=preCall, postCall=postCall, postConnect=postConnect) => ({
+        connect: () => holochainClient.connect(url).then(({call, close, ws}) => {
+            ws = postConnect(ws);
+            return {
+                call: (callString) => (params) => {
+                    const {callString: newCallString, params: newParams} = preCall(callString, params);
+                    return call(newCallString)(newParams).then(postCall);
+                },
+                close,
+                ws,
+            }
+        })
+    })
 
-        window.holochainClient = {
-            connect: () => holochainClient.connect(url).then(({call, close, ws}) => {
-                ws = postConnect(ws);
-                return {
-                    call: (callString) => (params) => {
-                        const {callString: newCallString, params: newParams} = preCall(callString, params);
-                        return call(newCallString)(newParams).then(postCall);
-                    },
-                    close,
-                    ws,
-                }
-            })
-        };
-    }
 
     /**
      * Preprocesses the callString and params before making a call
@@ -92,16 +78,11 @@ require('babel-polyfill');
         return ws;
     }
 
-    const hClient = {
-        init,
-        overrideWebClient,
+    return {
+        makeWebClient,
         generateNewReadwriteKeypair,
     };
 
-        // required for browser testing
-    if (typeof module !== 'undefined' && typeof module.exports !== 'undefined')
-        module.exports = hClient;
-    else
-        window.hClient = hClient;
-
 })();
+
+module.exports = hClient;

@@ -6,7 +6,7 @@ describe("hClient: basic test", () => {
   it("should be able to override window.holochainClient", async () => {
 
   	// mock holochainClient
-  	window.holochainClient = {
+  	const holochainClient = {
   		connect: (url) => new Promise((resolve) => {
   			console.log("connecting to ", url)
 
@@ -21,7 +21,7 @@ describe("hClient: basic test", () => {
 
   	// make a call with the original mock
   	let firstCallResult;
-  	await window.holochainClient.connect("url1").then(({call}) => {
+  	await holochainClient.connect("url1").then(({call}) => {
   		call("callString1")("params1").then(result => {
   			console.log(result)
   			firstCallResult = result
@@ -35,12 +35,12 @@ describe("hClient: basic test", () => {
   	const preCall = (callString, params) => ({callString, params});
   	const postCall = response => "override response";
   	const postConnect = ws => ws;
-  	hClient.overrideWebClient(url, preCall, postCall, postConnect);
+  	holoClient = hClient(holochainClient);
 
 
 	// make a call with the overriden version
   	let secondCallResult;
-  	await window.holochainClient.connect().then(({call}) => {
+  	await holoClient.connect(url, preCall, postCall, postConnect).then(({call}) => {
   		call("callString1")("params1").then(result => {
   			console.log(result)
   			secondCallResult = result
