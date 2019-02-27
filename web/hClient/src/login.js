@@ -44,7 +44,7 @@ const showLoginDialog = function(onSuccess, onFailure) {
     const modal = document.querySelector('.holo-dialog');
     modal.onSuccess = onSuccess;
     modal.onFailure = onFailure;
-    modal.show();
+    modal.showModal();
 }
 
 /**
