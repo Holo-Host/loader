@@ -47,7 +47,16 @@ describe('The integration test page', function() {
 	})
 
 
-	it('successfully loads', function() {
-
+	it('Triggers login on unauthorized', function() {
+		cy.wait(1000);
+		cy.get("#trigger-unauthorized").click();
+		cy.wait(500);
+		cy.get(".holo-dialog").within(() => {
+			cy.get("input[name='email']").type("test@test.com");
+			cy.get("input[name='pass']").type("abc123");
+			cy.get("button").click();
+		});
 	})
+
+	
 })

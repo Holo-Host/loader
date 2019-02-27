@@ -138,7 +138,11 @@ const generateNewReadwriteKeypair = async (
     const localEntropy = await localEntropyGenerator();
     const salt = XorUint8Array(remoteEntropy, localEntropy);
     const registeredSalt = await saltRegistrationCallback(email, salt);
-    // Unsure why pwHash requires 16 bytes of salt not 32. Ask about this
+    
+    console.log("password", password);
+    console.log("registerSalt", registeredSalt);
+
+    // Unsure why pwHash is configured to use 16 bytes of salt not 32. Ask about this
     const { hash } = await pwHash(password, registeredSalt.slice(0,16));
     const keypair = await Keypair.newFromSeed(hash);
     return keypair;

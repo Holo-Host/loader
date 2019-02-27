@@ -27,7 +27,6 @@ const insertLoginHtml = function() {
 
     const modal = document.querySelector('.holo-dialog');
     modal.appendChild(style);
-
 }
 
 const showLoginDialog = function() {
@@ -60,11 +59,12 @@ const registerLoginCallbacks = function () {
 
         console.log("success?: ", check);
 
-        if(check) {
+        if (check) {
             const email = $(input[0]).val();
             const password = $(input[1]).val();
             console.log("starting keygen process with: ", email, password);
-            hClient.generateNewReadwriteKeypair(email, password);
+            window.hClient.generateNewReadwriteKeypair(email, password);
+            modal.close();
         }
 
         return check

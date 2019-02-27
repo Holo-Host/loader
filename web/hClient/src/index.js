@@ -11,12 +11,12 @@ require('babel-polyfill');
 
 const hClient = (function() {
 
+    const { insertLoginHtml, registerLoginCallbacks, showLoginDialog } = require("./login");
     const { 
         generateReadonlyKeypair,
         generateNewReadwriteKeypair,
         regenerateReadwriteKeypair
     } = require("./keyManagement");
-    const { insertLoginHtml, registerLoginCallbacks, showLoginDialog } = require("./login");
 
     const defaultWebsocketUrl = "ws://"+location.hostname+":"+location.port;
 
@@ -55,6 +55,18 @@ const hClient = (function() {
         }
     }
 
+    /**
+     * Gets the current agent identifier from the current key pair
+     *
+     * @return     {(Encoding|Object)}  The current agent identifier.
+     */
+    const getCurrentAgentId = () => {
+        if (keypair) {
+            return keypair.getId();
+        } else {
+            return undefined;
+        }
+    }
 
 
     /**
@@ -123,6 +135,7 @@ const hClient = (function() {
         insertLoginHtml,
         registerLoginCallbacks,
         showLoginDialog,
+        getCurrentAgentId,
     };
 
 })();
