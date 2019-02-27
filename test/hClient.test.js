@@ -35,12 +35,11 @@ describe("hClient: basic test", () => {
   	const preCall = (callString, params) => ({callString, params});
   	const postCall = response => "override response";
   	const postConnect = ws => ws;
-  	holoClient = hClient(holochainClient);
-
+  	const holoClient = hClient.makeWebClient(holochainClient, url, preCall, postCall, postConnect);
 
 	// make a call with the overriden version
   	let secondCallResult;
-  	await holoClient.connect(url, preCall, postCall, postConnect).then(({call}) => {
+  	await holoClient.connect().then(({call}) => {
   		call("callString1")("params1").then(result => {
   			console.log(result)
   			secondCallResult = result

@@ -4,7 +4,7 @@ const $ = require("jquery"); // try and remove jquery in a refactor soon
 
 const insertLoginHtml = function() {
     // this will be inlined by parcel
-    let html = fs.readFileSync("./src/login/login.html");
+    let html = fs.readFileSync(__dirname +"/login/login.html");
 
     var template = document.createElement('template');
     template.id = "login-template";
