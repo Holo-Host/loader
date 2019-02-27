@@ -70,7 +70,7 @@
 
 .login100-form-title {
   display: block;
-  font-family: OpenSans-Regular;
+  font-family: Open Sans;
   font-size: 30px;
   color: #555555;
   line-height: 1.2;
@@ -95,7 +95,7 @@
   display: block;
   width: 100%;
   background: transparent;
-  font-family: OpenSans-Regular;
+  font-family: Open Sans;
   font-size: 15px;
   color: #666666;
   line-height: 1.2;
@@ -229,7 +229,7 @@ input.input100 {
   height: 60px;
   background-color: #4272d7;
 
-  font-family: OpenSans-Regular;
+  font-family: Open Sans;
   font-size: 14px;
   color: #fff;
   line-height: 1.2;
@@ -270,7 +270,7 @@ input.input100 {
   right: 12px;
   pointer-events: none;
 
-  font-family: OpenSans-Regular;
+  font-family: Open Sans;
   color: #c80000;
   font-size: 13px;
   line-height: 1.4;

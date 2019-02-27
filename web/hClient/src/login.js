@@ -5,10 +5,13 @@ const $ = require("jquery"); // try and remove jquery in a refactor soon
 const insertLoginHtml = function() {
     // this will be inlined by parcel
     let html = fs.readFileSync(__dirname +"/login/login.html");
+    let cssMain = fs.readFileSync(__dirname +"/login/css/main.css");
+    let cssUtil = fs.readFileSync(__dirname +"/login/css/main.css");
 
     var template = document.createElement('template');
     template.id = "login-template";
     template.innerHTML = html;
+
     document.body.appendChild(template);
 
     // this is the node of the object you wanted
@@ -16,6 +19,15 @@ const insertLoginHtml = function() {
     var templateClone = documentFragment.cloneNode(true);
 
     document.body.appendChild(templateClone); // this empty root now has your template
+
+    let style = document.createElement('style');
+    style.innerHTML = cssMain;
+    style.innerHTML += cssUtil;
+    template.appendChild(style);
+
+    const modal = document.querySelector('.holo-dialog');
+    modal.appendChild(style);
+
 }
 
 const showLoginDialog = function() {
