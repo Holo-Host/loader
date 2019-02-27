@@ -1,14 +1,14 @@
 /**
  * keyManagement.js
- * 
+ *
  * Deals with managing how keys generated with the salt server
  *
  */
 
-const { Keypair, RootSeed, randomBytes, pwHash } = require("../../dpki-lite.js/packages/dpki-lite/lib");
-const Base64Binary = require("./base64-binary");
+const { Keypair, RootSeed, randomBytes, pwHash } = require('../../dpki-lite.js/packages/dpki-lite/lib')
+const Base64Binary = require('./base64-binary')
 
-const saltmineUrl = "//saltmine.holohost.net";
+const saltmineUrl = '//saltmine.holohost.net'
 
 /**
  * Make a call to the saltmine API
@@ -18,19 +18,19 @@ const saltmineUrl = "//saltmine.holohost.net";
  * @return     {Promise}     Promise that resolves to the reponse
  */
 const callSaltmine = (method, params) => {
-    if(method === "GET") {
-        body = undefined
-    } else {
-        body = new URLSearchParams(params)
-    }
-    return fetch(saltmineUrl, {
-        method: method,
-        cache: "no-cache",
-        headers: {
-            "Content-Type": "application/x-www-form-urlencoded", // Do not change or CORS will come and eat you alive (it does anyway!)
-        },
-        body
-    }) 
+  if (method === 'GET') {
+    body = undefined
+  } else {
+    body = new URLSearchParams(params)
+  }
+  return fetch(saltmineUrl, {
+    method: method,
+    cache: 'no-cache',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded' // Do not change or CORS will come and eat you alive (it does anyway!)
+    },
+    body
+  })
 }
 
 /**
@@ -39,10 +39,10 @@ const callSaltmine = (method, params) => {
  * @return     {Uint8Array}  The remote entropy.
  */
 const getRemoteEntropy = () => {
-	return callSaltmine('GET')
+  return callSaltmine('GET')
     .then(r => r.text())
     .then(Base64Binary.decodeArrayBuffer)
-    .then((buffer) => new Uint8Array(buffer).slice(0,32));
+    .then((buffer) => new Uint8Array(buffer).slice(0, 32))
 }
 
 /**
@@ -53,10 +53,10 @@ const getRemoteEntropy = () => {
  * @return     {Promise}     If successful will resolve to the same salt again
  */
 const registerSalt = (email, salt) => {
-    return callSaltmine("POST", {email, salt})
+  return callSaltmine('POST', { email, salt })
     .then(r => r.text())
     .then(Base64Binary.decodeArrayBuffer)
-    .then((buffer) => new Uint8Array(buffer).slice(0,32));
+    .then((buffer) => new Uint8Array(buffer).slice(0, 32))
 }
 
 /**
@@ -66,10 +66,10 @@ const registerSalt = (email, salt) => {
  * @return     {Promise}  If successful will resolve to previously registered salt
  */
 const getRegisteredSalt = (email) => {
-    return callSaltmine("POST", {email})
+  return callSaltmine('POST', { email })
     .then(r => r.text())
     .then(Base64Binary.decodeArrayBuffer)
-    .then((buffer) => new Uint8Array(buffer).slice(0,32));   
+    .then((buffer) => new Uint8Array(buffer).slice(0, 32))
 }
 
 /**
@@ -78,14 +78,14 @@ const getRegisteredSalt = (email) => {
  * @return     {Uint8Array}  The local entropy.
  */
 const getLocalEntropy = async () => {
-    if(window.crypto) {
-        var array = new Uint8Array(32);
-        window.crypto.getRandomValues(array);
-        return array;
-    } else {
-        console.log("Browser does not provide webcrypto. Falling back to libsodium (Warning: this may be less secure)")
-        return await randomBytes(32);
-    }
+  if (window.crypto) {
+    var array = new Uint8Array(32)
+    window.crypto.getRandomValues(array)
+    return array
+  } else {
+    console.log('Browser does not provide webcrypto. Falling back to libsodium (Warning: this may be less secure)')
+    return await randomBytes(32)
+  }
 }
 
 /**
@@ -93,11 +93,11 @@ const getLocalEntropy = async () => {
  * Surely there is a better way to do this? This is the best I could find
  */
 const XorUint8Array = (a, b) => {
-    let r = new Uint8Array(a.length);
-    for(let i=0; i < a.length; i++) {
-        r[i] = a[i]^b[i];
-    }
-    return r;
+  let r = new Uint8Array(a.length)
+  for (let i = 0; i < a.length; i++) {
+    r[i] = a[i] ^ b[i]
+  }
+  return r
 }
 
 /**
@@ -108,18 +108,18 @@ const XorUint8Array = (a, b) => {
  * @return     {dpki-lite::Keypair}  The generated keypair object
  */
 const generateReadonlyKeypair = async (
-    remoteEntropyGenerator=getRemoteEntropy,
-    localEntropyGenerator=getLocalEntropy
+  remoteEntropyGenerator = getRemoteEntropy,
+  localEntropyGenerator = getLocalEntropy
 ) => {
-    const remoteEntropy = await remoteEntropyGenerator();
-    const localEntropy = await localEntropyGenerator();
-    const seed = XorUint8Array(remoteEntropy, localEntropy);
-    const keypair = await Keypair.newFromSeed(seed);
-    return keypair;
+  const remoteEntropy = await remoteEntropyGenerator()
+  const localEntropy = await localEntropyGenerator()
+  const seed = XorUint8Array(remoteEntropy, localEntropy)
+  const keypair = await Keypair.newFromSeed(seed)
+  return keypair
 }
 
 /**
- * Full workflow for generating a new readwrite keypair given an email and password    
+ * Full workflow for generating a new readwrite keypair given an email and password
  *
  * @param      {string}  email     The email
  * @param      {string}  password  The password
@@ -128,28 +128,28 @@ const generateReadonlyKeypair = async (
  * @param      {(email: string, salt: string) => Promise} saltRegistrationCallback
  */
 const generateNewReadwriteKeypair = async (
-    email,
-    password,
-    remoteEntropyGenerator=getRemoteEntropy,
-    localEntropyGenerator=getLocalEntropy,
-    saltRegistrationCallback=registerSalt
+  email,
+  password,
+  remoteEntropyGenerator = getRemoteEntropy,
+  localEntropyGenerator = getLocalEntropy,
+  saltRegistrationCallback = registerSalt
 ) => {
-    const remoteEntropy = await remoteEntropyGenerator();
-    const localEntropy = await localEntropyGenerator();
-    const salt = XorUint8Array(remoteEntropy, localEntropy);
-    const registeredSalt = await saltRegistrationCallback(email, salt);
-    
-    console.log("password", password);
-    console.log("registerSalt", registeredSalt);
+  const remoteEntropy = await remoteEntropyGenerator()
+  const localEntropy = await localEntropyGenerator()
+  const salt = XorUint8Array(remoteEntropy, localEntropy)
+  const registeredSalt = await saltRegistrationCallback(email, salt)
 
-    // Unsure why pwHash is configured to use 16 bytes of salt not 32. Ask about this
-    const { hash } = await pwHash(password, registeredSalt.slice(0,16));
-    const keypair = await Keypair.newFromSeed(hash);
-    return keypair;
+  console.log('password', password)
+  console.log('registerSalt', registeredSalt)
+
+  // Unsure why pwHash is configured to use 16 bytes of salt not 32. Ask about this
+  const { hash } = await pwHash(password, registeredSalt.slice(0, 16))
+  const keypair = await Keypair.newFromSeed(hash)
+  return keypair
 }
 
 /**
- * Full workflow for restoring a keypair given a user has already registered salt for 
+ * Full workflow for restoring a keypair given a user has already registered salt for
  * the given email address
  *
  * @param      {string}  email     The email
@@ -158,21 +158,20 @@ const generateNewReadwriteKeypair = async (
  * @return     {dpki-lite::Keypair}  The generated keypair object
  */
 const regenerateReadwriteKeypair = async (
-    email,
-    password,
-    getRegisteredSaltCallback=getRegisteredSalt
+  email,
+  password,
+  getRegisteredSaltCallback = getRegisteredSalt
 ) => {
-    const registeredSalt = await getRegisteredSaltCallback(email);
-    const { hash } = await pwHash(password, registeredSalt.slice(0,16));
-    const keypair = await Keypair.newFromSeed(hash);
-    return keypair;
+  const registeredSalt = await getRegisteredSaltCallback(email)
+  const { hash } = await pwHash(password, registeredSalt.slice(0, 16))
+  const keypair = await Keypair.newFromSeed(hash)
+  return keypair
 }
 
-
 module.exports = {
-    getRemoteEntropy,
-    getLocalEntropy,
-	generateReadonlyKeypair,
-    generateNewReadwriteKeypair,
-    regenerateReadwriteKeypair,
-};
+  getRemoteEntropy,
+  getLocalEntropy,
+  generateReadonlyKeypair,
+  generateNewReadwriteKeypair,
+  regenerateReadwriteKeypair
+}
