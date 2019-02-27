@@ -6,7 +6,11 @@
  *       display nice Holo logo and something like "Connecting to Holo network..."
  */
 
-const hQuery = (function(){
+const fs = require("fs");
+
+const hClient = fs.readFileSync("../hClient/dist/hClient.js");
+
+(function(){
     // Networking settings etc
     const settings = {
         resolverUrl: '//resolver.holohost.net', // Address of url resolver service worker
@@ -192,7 +196,6 @@ const hQuery = (function(){
         doc = parser.parseFromString(html, "text/html");
         let base = doc.createElement("base");
         base.href = `${url}`;
-        base.innerHTML = "";
         doc.head.appendChild(base);
         return doc.documentElement.outerHTML;
     }
@@ -209,11 +212,16 @@ const hQuery = (function(){
         parser = new DOMParser();
         doc = parser.parseFromString(html, "text/html");
 
-        let script = doc.createElement("script");
-        script.src = window.location.href+"Client.js"
-        script.innerHTML = `hClient.init("${url}")`;
+        let loadScript = doc.createElement("script");
+        loadScript.type = "text/javascript";
+        loadScript.textContent = `${hClient};`;
+        doc.head.appendChild(loadScript);
 
-        doc.head.appendChild(script);
+        let execScript = doc.createElement("script");
+        execScript.type = "text/javascript";
+        execScript.textContent = `window.hClient.init("${url}")`;
+        doc.head.appendChild(execScript);
+
         return doc.documentElement.outerHTML;
     }
 

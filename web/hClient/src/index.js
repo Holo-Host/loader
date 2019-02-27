@@ -10,7 +10,7 @@ require('babel-polyfill');
  *     - Intercepting unauthorized responses to display a login screen
  */
 
-module.exports = hClient = (function(){
+(function(){
 
     const { generateNewReadwriteKeypair } = require("./keyManagement");
 
@@ -19,7 +19,9 @@ module.exports = hClient = (function(){
      * Must be called on UI startup. Replaces the window.holochainClient and sets up the login window
      **/
     const init = (url) => {
+        console.log("Holo World! You are about to be Holo-fied...");
         overrideWebClient(url, preCall, postCall, postConnect);
+        console.log("Holo-fication complete.");
     }
 
     /**
@@ -90,9 +92,16 @@ module.exports = hClient = (function(){
         return ws;
     }
 
-    return {
+    const hClient = {
+        init,
         overrideWebClient,
         generateNewReadwriteKeypair,
     };
+
+        // required for browser testing
+    if (typeof module !== 'undefined' && typeof module.exports !== 'undefined')
+        module.exports = hClient;
+    else
+        window.hClient = hClient;
 
 })();
