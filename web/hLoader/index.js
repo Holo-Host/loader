@@ -42,10 +42,7 @@
         // TODO: Check if protocol is https?
         _url = window.location.hostname;
 
-        // Extend scope of ip
         let addr;
-        // tmp
-        //_url = "test2.imagexchange.pl";
         queryForHosts(_url)
             .then(obj => processWorkerResponse(obj))
             .then(r => {

@@ -11,12 +11,17 @@ require('babel-polyfill');
 
 const hClient = (function() {
 
-    const { generateNewReadwriteKeypair } = require("./keyManagement");
+    const { 
+        generateReadonlyKeypair,
+        generateNewReadwriteKeypair,
+        regenerateReadwriteKeypair
+    } = require("./keyManagement");
     const { insertLoginHtml, registerLoginCallbacks, showLoginDialog } = require("./login");
 
     const defaultWebsocketUrl = "ws://"+location.hostname+":"+location.port;
-    
 
+    let keypair;
+    
     /**
      * Wraps and returns a holochainClient module
      * Keeps the same functionaltiy but adds preCall and postCall hooks and also forces
@@ -74,6 +79,7 @@ const hClient = (function() {
         // TODO: Check response for authentication error to see if login is required
         // TODO: Sign the response and sent it back to the interceptor
         // TODO: Unpack the response to expose to the UI code (make it look like a regular holochain call)
+        
         return response;
     }
 
@@ -89,6 +95,9 @@ const hClient = (function() {
         // ws.on("sign_entry", () => {
         //     // Sign the response and then send it back to the interceptor
         // });
+         
+        keypair = generateReadonlyKeypair();
+
         return ws;
     }
 

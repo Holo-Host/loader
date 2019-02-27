@@ -23,6 +23,18 @@ describe('The integration test page', function() {
 			response: {"requestURL":"/","dna":"QmSimpleHappHash","hosts":["localhost:4000"]},
 		});
 
+		// mock the saltmine
+		cy.route({
+			method: 'GET',
+			url: 'http://saltmine.holohost.net/',
+			response: '1c1d68e7a177de30392112bc8f8d64a7e45be2b33e865d6284c543cc01763593'
+		});
+		cy.route({
+			method: 'POST',
+			url: 'http://saltmine.holohost.net/',
+			response: '1c1d68e7a177de30392112bc8f8d64a7e45be2b33e865d6284c543cc01763593',
+		});
+
 		cy.visit('/', {
 	      onBeforeLoad (win) {
 	        delete win.fetch
