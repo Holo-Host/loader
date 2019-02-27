@@ -2,6 +2,11 @@
 const fs = require("fs");
 const $ = require("jquery"); // try and remove jquery in a refactor soon
 
+/**
+ * Inserts the login page in to the current document HTML.
+ * It will be invisible and should not alter current page until
+ * triggered to display
+ */
 const insertLoginHtml = function() {
     // this will be inlined by parcel
     let html = fs.readFileSync(__dirname +"/login/login.html");
@@ -29,6 +34,12 @@ const insertLoginHtml = function() {
     modal.appendChild(style);
 }
 
+/**
+ * Shows the login dialog.
+ *
+ * @param      {(string, string) => void}  onSuccess callback. Takes email and password
+ * @param      {(string, string) => void}  onFailure callback. Takes email and password
+ */
 const showLoginDialog = function(onSuccess, onFailure) {
     const modal = document.querySelector('.holo-dialog');
     modal.onSuccess = onSuccess;
@@ -36,6 +47,10 @@ const showLoginDialog = function(onSuccess, onFailure) {
     modal.show();
 }
 
+/**
+ * Registers all the functionality of the login dialog. 
+ * This must be on page load called for it to work
+ */
 const registerLoginCallbacks = function () {
 
     const dialogPolyfill = require("dialog-polyfill");
