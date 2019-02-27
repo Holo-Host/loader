@@ -47,7 +47,7 @@ const Base64Binary = (function () {
 
   const removePaddingChars = function (input) {
     var lkey = _keyStr.indexOf(input.charAt(input.length - 1))
-    if (lkey == 64) {
+    if (lkey === 64) {
       return input.substring(0, input.length - 1)
     }
     return input
@@ -82,8 +82,8 @@ const Base64Binary = (function () {
       chr3 = ((enc3 & 3) << 6) | enc4
 
       uarray[i] = chr1
-      if (enc3 != 64) uarray[i + 1] = chr2
-      if (enc4 != 64) uarray[i + 2] = chr3
+      if (enc3 !== 64) uarray[i + 1] = chr2
+      if (enc4 !== 64) uarray[i + 2] = chr3
     }
 
     return uarray

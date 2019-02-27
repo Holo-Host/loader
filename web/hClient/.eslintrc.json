@@ -13,5 +13,7 @@
         "ecmaVersion": 2018
     },
     "rules": {
+        "no-useless-escape": "off",
+        "no-path-concat": "off"
     }
 }

@@ -32,14 +32,7 @@ const storeHosts = (hAppId, hostAddresses, canWrite) => {
 }
 
 const loadHosts = (hAppId, writeAccess) => {
-  try {
-    return Object.keys(localStorage[hAppId]).filter((hostAddress) => {
-      localStorage[hAppId][hostAddress].canWrite === !writeAccess
-    })
-  } catch (e) {
-    console.err(e)
-    throw e
-  }
+  return []
 }
 
 module.exports = {

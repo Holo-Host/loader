@@ -5,7 +5,7 @@
  *
  */
 
-const { Keypair, RootSeed, randomBytes, pwHash } = require('../../dpki-lite.js/packages/dpki-lite/lib')
+const { Keypair, randomBytes, pwHash } = require('../../dpki-lite.js/packages/dpki-lite/lib')
 const Base64Binary = require('./base64-binary')
 
 const saltmineUrl = '//saltmine.holohost.net'
@@ -18,6 +18,7 @@ const saltmineUrl = '//saltmine.holohost.net'
  * @return     {Promise}     Promise that resolves to the reponse
  */
 const callSaltmine = (method, params) => {
+  let body
   if (method === 'GET') {
     body = undefined
   } else {
@@ -84,7 +85,7 @@ const getLocalEntropy = async () => {
     return array
   } else {
     console.log('Browser does not provide webcrypto. Falling back to libsodium (Warning: this may be less secure)')
-    return await randomBytes(32)
+    return randomBytes(32)
   }
 }
 

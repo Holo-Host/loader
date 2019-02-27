@@ -17,8 +17,7 @@ const hClient = (function () {
   const { insertLoginHtml, registerLoginCallbacks, showLoginDialog } = require('./login')
   const {
     generateReadonlyKeypair,
-    generateNewReadwriteKeypair,
-    regenerateReadwriteKeypair
+    generateNewReadwriteKeypair
   } = require('./keyManagement')
 
   const defaultWebsocketUrl = 'ws://' + location.hostname + ':' + location.port
@@ -102,7 +101,7 @@ const hClient = (function () {
 
     response = JSON.parse(response)
 
-    if (response.Err && response.Err.code == 401) {
+    if (response.Err && response.Err.code === 401) {
       showLoginDialog((email, password) => {
         generateNewReadwriteKeypair(email, password).then(kp => {
           console.log('Registered keypair is ', kp)
