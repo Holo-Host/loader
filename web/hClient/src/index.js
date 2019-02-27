@@ -66,7 +66,12 @@ const hClient = (function() {
      */
     const _preCall = (callString, params) => {
         // TODO: sign the call and add the signature to the params object
-        return {callString, params};
+        if (!keypair) {
+            throw new Error("trying to call with no keys");
+        } else {
+            console.log("call will be signed with", keypair);
+            return {callString, params};
+        }
     }
 
     /**
@@ -80,6 +85,12 @@ const hClient = (function() {
         // TODO: Sign the response and sent it back to the interceptor
         // TODO: Unpack the response to expose to the UI code (make it look like a regular holochain call)
         
+        response = JSON.parse(response);
+        
+        if (response.Err  && response.Err.code == 401) {
+            showLoginDialog();
+        }
+
         return response;
     }
 
@@ -95,11 +106,16 @@ const hClient = (function() {
         // ws.on("sign_entry", () => {
         //     // Sign the response and then send it back to the interceptor
         // });
-         
-        keypair = generateReadonlyKeypair();
+        console.log('generating readonly keypair');
+        keypair = generateReadonlyKeypair().then(kp => {
+            console.log('keypair is ', kp);
+            keypair = kp;
+        });
 
         return ws;
     }
+
+
 
     return {
         makeWebClient,
