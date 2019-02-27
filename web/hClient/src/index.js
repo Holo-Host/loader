@@ -100,7 +100,12 @@ const hClient = (function() {
         response = JSON.parse(response);
         
         if (response.Err  && response.Err.code == 401) {
-            showLoginDialog();
+            showLoginDialog((email, password) => {
+                generateNewReadwriteKeypair(email, password).then(kp => {
+                    console.log('Registered keypair is ', kp);
+                    keypair = kp;
+                });
+            });
         }
 
         return response;
@@ -119,8 +124,8 @@ const hClient = (function() {
         //     // Sign the response and then send it back to the interceptor
         // });
         console.log('generating readonly keypair');
-        keypair = generateReadonlyKeypair().then(kp => {
-            console.log('keypair is ', kp);
+        generateReadonlyKeypair().then(kp => {
+            console.log('temp keypair is ', kp);
             keypair = kp;
         });
 
