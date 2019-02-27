@@ -1,12 +1,16 @@
 require('babel-polyfill');
 /**
- * hClient.js
- * An API compatible drop-in for hc-web-client. The module exports a functin that accepts an hc-web-client and returns a holo-fied version
+ * hClient
+ * The javascript library for making your web UI Holo enabled!
  * 
- * It adds the additional functionality of
- *     - Connecting to the correct holo-port
- *     - Signing all calls with the agents private key
- *     - Intercepting unauthorized responses to display a login screen
+ * - Key management and generation
+ *   + Generating temporary readonly keys for browsing
+ *   + Detecting when authorization is required and prompting the user to signup/login to generate read/write keys
+ * - Signing calls and responses
+ * - setting up a websocket connection to the interceptor to sign commits on request
+ * -  Wrapping and unwrapping calls to and from the interceptor such that they look like regular holochain calls
+ *     
+ * @module hClient
  */
 
 const hClient = (function() {
@@ -23,15 +27,16 @@ const hClient = (function() {
     let keypair;
     
     /**
-     * Wraps and returns a holochainClient module
+     * Wraps and returns a holochainClient module. 
      * Keeps the same functionaltiy but adds preCall and postCall hooks and also forces
      * connect to go to a given URL
+     * @memberof module:hClient
      *
-     * @param      {Object} holochainClient A hc-web-client module to wrap
-     * @param      {string}    url       The url to connect to
-     * @param      {Function}  preCall   The pre call funciton. Takes the callString and params and returns new callString and params
-     * @param      {Function   postCall  The post call function. Takes the response and returns the new response
-     * @param      {Function   postConnect  The post connect function. Takes a RPC-websockets object and returns it preCall=preCall, postCall=postCall, postConnect=postConnect
+     * @param      {Object}    holochainClient A hc-web-client module to wrap
+     * @param      {string}    [url]       The url to connect to
+     * @param      {Function}  [preCall]   The pre call funciton. Takes the callString and params and returns new callString and params
+     * @param      {Function}  [postCall]  The post call function. Takes the response and returns the new response
+     * @param      {Function}  [postConnect]  The post connect function. Takes a RPC-websockets object and returns it preCall=preCall, postCall=postCall, postConnect=postConnect
      */
     const makeWebClient = (holochainClient, url, preCall, postCall, postConnect) => {
 
@@ -57,7 +62,8 @@ const hClient = (function() {
 
     /**
      * Gets the current agent identifier from the current key pair
-     *
+     * @memberof module:hClient
+     * 
      * @return     {(Encoding|Object)}  The current agent identifier.
      */
     const getCurrentAgentId = () => {
@@ -74,7 +80,7 @@ const hClient = (function() {
      *
      * @param      {string}  callString  The call string e.g. dna/zome/function
      * @param      {Object}  params      The parameters 
-     * @return     {callString, params}  The updated callString and params passed to call
+     * @return     {Object}  The updated callString and params passed to call
      */
     const _preCall = (callString, params) => {
         // TODO: sign the call and add the signature to the params object
@@ -88,7 +94,7 @@ const hClient = (function() {
 
     /**
      * Postprocess the response of a call before returning it to the UI
-     *
+     * 
      * @param      {string}  response  The response of the call
      * @return     {string}  Updated response
      */
@@ -114,7 +120,7 @@ const hClient = (function() {
     /**
      * Add any new callbacks to the websocket object or make calls immediatly after connecting
      *
-     * @param      {<type>}  ws      { rpc=websockets object }
+     * @param      {Object}  ws      { rpc=websockets object }
      */
     const _postConnect = (ws) => {
         // TODO: subscribe to a rpc-websocket callback for sigining actions
