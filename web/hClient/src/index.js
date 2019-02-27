@@ -12,6 +12,7 @@ require('babel-polyfill');
 const hClient = (function() {
 
     const { generateNewReadwriteKeypair } = require("./keyManagement");
+    const { insertLoginHtml, registerLoginCallbacks } = require("./login");
 
     const defaultWebsocketUrl = "ws://"+location.hostname+":"+location.port;
     
@@ -85,6 +86,8 @@ const hClient = (function() {
     return {
         makeWebClient,
         generateNewReadwriteKeypair,
+        insertLoginHtml,
+        registerLoginCallbacks,
     };
 
 })();

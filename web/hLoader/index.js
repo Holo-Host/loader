@@ -173,7 +173,6 @@
      */
     const replaceHtml = (html, addr) => {
         html = replaceBase(html, "http://"+addr);
-        // html = insertScripts(html, "ws://"+addr);
         document.open();
         document.write(html);
         document.close();
@@ -188,36 +187,11 @@
      * @return {string} Html with <base> tag inserted
      */
     const replaceBase = (html, url) => {
-        parser = new DOMParser();
-        doc = parser.parseFromString(html, "text/html");
+        const parser = new DOMParser();
+        let doc = parser.parseFromString(html, "text/html");
         let base = doc.createElement("base");
         base.href = `${url}`;
         doc.head.appendChild(base);
-        return doc.documentElement.outerHTML;
-    }
-
-    /**
-     * Adds a script that imports hClient and overrides the window web client.
-     * Effectively enables a holochain app to be holo compatible
-     *
-     * @param {string} html Html to add tag to
-     * @param {string} url hostname (with protocol and port, e.g. //test.holo.host:4141")
-     * @return {string} Html with new script tag inserted at the top level
-     */
-    const insertScripts = (html, url) => {
-        parser = new DOMParser();
-        doc = parser.parseFromString(html, "text/html");
-
-        let loadScript = doc.createElement("script");
-        loadScript.type = "text/javascript";
-        loadScript.textContent = `${hClient};`;
-        doc.head.appendChild(loadScript);
-
-        let execScript = doc.createElement("script");
-        execScript.type = "text/javascript";
-        execScript.textContent = `window.hClient.init("${url}")`;
-        doc.head.appendChild(execScript);
-
         return doc.documentElement.outerHTML;
     }
 
@@ -227,7 +201,6 @@
         initHapp,
         getHappUrl,
         getHappDna,
-        insertScripts,
         replaceBase,
     }
 

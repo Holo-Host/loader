@@ -1,6 +1,23 @@
 
-(function () {
+const fs = require("fs");
 
+const insertLoginHtml = function() {
+    // this will be inlined by parcel
+    let html = fs.readFileSync("./src/login/login.html");
+
+    var template = document.createElement('template');
+    template.id = "login-template";
+    template.innerHTML = html;
+    document.body.appendChild(template);
+
+    // this is the node of the object you wanted
+    var documentFragment = template.content;
+    var templateClone = documentFragment.cloneNode(true);
+
+    document.body.appendChild(templateClone); // this empty root now has your template
+}
+
+const registerLoginCallbacks = function () {
 
     const $ = require("jquery");
     const dialogPolyfill = require("dialog-polyfill");
@@ -68,4 +85,9 @@
         $(thisAlert).removeClass('alert-validate');
     }
 
-})();
+};
+
+module.exports = {
+    insertLoginHtml,
+    registerLoginCallbacks,
+};
