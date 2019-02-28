@@ -20,7 +20,7 @@ const hClient = (function () {
     generateNewReadwriteKeypair
   } = require('./keyManagement')
 
-  const defaultWebsocketUrl = 'ws://' + location.hostname + ':' + location.port
+  const getDefaultWebsocketUrl = () => 'ws://' + location.hostname + ':' + location.port
 
   let keypair
 
@@ -37,7 +37,7 @@ const hClient = (function () {
      * @param      {Function}  [postConnect]  The post connect function. Takes a RPC-websockets object and returns it preCall=preCall, postCall=postCall, postConnect=postConnect
      */
   const makeWebClient = (holochainClient, url, preCall, postCall, postConnect) => {
-    url = url || defaultWebsocketUrl
+    url = url || getDefaultWebsocketUrl()
     preCall = preCall || _preCall
     postCall = postCall || _postCall
     postConnect = postConnect || _postConnect

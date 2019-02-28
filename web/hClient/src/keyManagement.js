@@ -81,7 +81,7 @@ const getRegisteredSalt = (email) => {
  * @return     {Uint8Array}  The local entropy.
  */
 const getLocalEntropy = async () => {
-  if (window.crypto) {
+  if (typeof window !== 'undefined' && window.crypto) {
     var array = new Uint8Array(32)
     window.crypto.getRandomValues(array)
     return array

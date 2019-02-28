@@ -1,5 +1,5 @@
-const hClient = require("../web/hClient/src/index.js");
-const keyManagement = require("../web/hClient/src/keyManagement.js");
+const hClient = require("../src/index.js")
+const keyManagement = require("../src/keyManagement.js")
 
 describe("hClient: basic test", () => {
   
@@ -27,7 +27,7 @@ describe("hClient: basic test", () => {
   			firstCallResult = result
   		});
   	});
-  	expect(firstCallResult).toBe("original result");
+  	firstCallResult.should.equal("original result");
 
 
   	// use hClient to override
@@ -45,21 +45,17 @@ describe("hClient: basic test", () => {
   			secondCallResult = result
   		});
   	});
-  	expect(secondCallResult).toBe("override response");
+  	secondCallResult.should.equal("override response");
 
 
   })
-
-
-
 })
 
 describe("keyManagement", () => {
 
-
   it("Can get 32 bytes of local entropy from webcrypto or sodium as a fallback", async () => {
     let entropy = await keyManagement.getLocalEntropy();
-    expect(entropy.byteLength).toBe(32);
+    entropy.byteLength.should.equal(32);
   });
 
   it("Can generate a local readonly keypair", async () => {
@@ -68,8 +64,8 @@ describe("keyManagement", () => {
       keyManagement.getLocalEntropy,
       keyManagement.getLocalEntropy
     );
-    expect(keypair._signPub.byteLength).toBe(32);
-    expect(keypair._signPriv.byteLength).toBe(64);
+    keypair._signPub.byteLength.should.equal(32);
+    keypair._signPriv.byteLength.should.equal(64);
   });
 
   it("Can generate a new readwrite keypair", async () => {
@@ -83,8 +79,8 @@ describe("keyManagement", () => {
       keyManagement.getLocalEntropy,
       mockSaltRegistration
     );
-    expect(keypair._signPub.byteLength).toBe(32);
-    expect(keypair._signPriv.byteLength).toBe(64);
+    keypair._signPub.byteLength.should.equal(32);
+    keypair._signPriv.byteLength.should.equal(64);
   });
 
   it("Can recover a keypair with an already registered salt", async () => {
@@ -95,8 +91,8 @@ describe("keyManagement", () => {
       "123abc",
       mockGetRegisteredSalt
     );
-    expect(keypair._signPub.byteLength).toBe(32);
-    expect(keypair._signPriv.byteLength).toBe(64);
+    keypair._signPub.byteLength.should.equal(32);
+    keypair._signPriv.byteLength.should.equal(64);
   });
 
 })
