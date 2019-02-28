@@ -83,7 +83,6 @@ const hClient = (function () {
     keypair = kp
 
     // set up the websocket to sign on request
-    // TODO: namespace the callback by agent ID for this key
     const event = `agent/${getCurrentAgentId()}/sign`
 
     if (websocket) {
@@ -169,7 +168,6 @@ const hClient = (function () {
     }
 
     // TODO: Sign the response and sent it back to the interceptor
-
     // TODO: Unpack the response to expose to the UI code (make it look like a regular holochain call)
 
     return response

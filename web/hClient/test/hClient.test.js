@@ -25,9 +25,9 @@ describe("hClient: basic test", () => {
   		call("callString1")("params1").then(result => {
   			console.log(result)
   			firstCallResult = result
-  		});
-  	});
-  	firstCallResult.should.equal("original result");
+  	    firstCallResult.should.equal("original result");
+      });
+    });
 
 
   	// use hClient to override
@@ -43,9 +43,9 @@ describe("hClient: basic test", () => {
   		call("callString1")("params1").then(result => {
   			console.log(result)
   			secondCallResult = result
+        secondCallResult.should.equal("override response");
   		});
   	});
-  	secondCallResult.should.equal("override response");
 
 
   })
