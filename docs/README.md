@@ -34,6 +34,33 @@ hClient.registerLoginCallbacks();
 
 This has its own inline scoped CSS and should not interfere with the rest of the application. hClient is then able to trigger this modal to block any further user interaction until they are authenticated.
 
+## Running tests
+
+### Standalone tests
+
+Standalone tests can be run in the browser by running the following:
+```
+cd test
+npm install
+npm run test &
+... wait for servers to build and start
+firefox localhost:1234
+```
+
+Firefox can be substituted for any other browser to test compatibility. This may not be the best way to do tests in CI but many of them require the DOM and other browser specific features.
+
+### Integration tests
+
+The integration of hLoader and hLoader are tested with the resolver.holo.host and saltmine.holo.host set up as mocks. For true integration tests these mocks can be removed in the future. Run the ui-automation tests by running
+
+```
+cd integration_tests
+npm install
+npm run start &
+... wait for servers to build and start
+npm run cypress:run
+```
+
 Test sites:
 
 - https://hello.artflow.network - will return working hApp (proto, if no results are returned then probably hcdev server died)

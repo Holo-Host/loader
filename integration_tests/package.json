@@ -6,7 +6,9 @@
   "scripts": {
     "start:loader": "sh ./scripts/build_loader_server.sh && http-server -a localhost -p 3000 ./loader_server",
     "start:host": "sh ./scripts/build_host_server.sh && http-server --cors -a localhost -p 4000 ./host_server",
-    "start": "npm run start:loader & npm run start:host"
+    "start": "npm run start:loader & npm run start:host",
+    "cypress:run": "cypress run",
+    "cypress:open": "cypress open"
   },
   "author": "",
   "license": "ISC",
