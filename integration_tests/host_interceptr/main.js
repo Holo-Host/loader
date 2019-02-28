@@ -8,11 +8,17 @@ const server = new WebSocketServer({
   host: 'localhost'
 })
 
-// server.event('agent/sign')
-
 server.register('holo/identify', ({agentId}) => {
-	server.event(`agent/${agentId}/sign`)
+	try {
+		server.event(`agent/${agentId}/sign`)
+	} catch (e) {
+		console.log("tried to re-add the same event. Its ok we forgive you")
+	}
 	return {Ok: true}
+})
+
+server.register('holo/get-hosted', ({agentId}) => {
+	return {Ok: "you are now hosted!... really"}
 })
 
 server.register('holo/call', ({
@@ -37,8 +43,7 @@ server.register('holo/call', ({
 })
 
 server.register('holo/clientSignature', ({signature, requestId}) => {
-	console.log("signature received with", signature, requestId)
 	return {Ok: true}
 })
 
-console.log("websocket listening in port ", port)
+console.log("websocket listening on port ", port)

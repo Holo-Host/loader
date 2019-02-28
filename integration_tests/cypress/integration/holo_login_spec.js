@@ -46,9 +46,10 @@ describe('The integration test page', function() {
 		});
 	})
 
-
-	it('Triggers login on unauthorized', function() {
-		cy.wait(1000);
+	it('makes a call prior to authentication, authenticates, then calls again', () => {
+		cy.wait(2000);
+		cy.get("#make-valid-call").click();
+		cy.wait(500);
 		cy.get("#trigger-unauthorized").click();
 		cy.wait(500);
 		cy.get(".holo-dialog").within(() => {
@@ -56,7 +57,9 @@ describe('The integration test page', function() {
 			cy.get("input[name='pass']").type("abc123");
 			cy.get("button").click();
 		});
+		cy.wait(500);
+		cy.get("#make-valid-call").click();
+		cy.wait(500);
 	})
-
 	
 })

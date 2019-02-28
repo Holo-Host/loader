@@ -47,9 +47,9 @@ const hClient = (function () {
       connect: () => holochainClient.connect(url).then(({ call, close, ws }) => {
         ws = postConnect(ws)
         return {
-          call: (...callStringSegments) => (params) => {
+          call: (...callStringSegments) => async (params) => {
             const callString = callStringSegments.length === 1 ? callStringSegments[0] : callStringSegments.join('/')
-            const { callString: newCallString, params: newParams } = preCall(callString, params)
+            const { callString: newCallString, params: newParams } = await preCall(callString, params)
             return call(newCallString)(newParams).then(postCall)
           },
           close,
@@ -104,18 +104,36 @@ const hClient = (function () {
   }
 
   /**
+   * Communicate with the conductor and request they create a chain for you on the host
+   *
+   */
+  const requestHosting = async () => {
+    if (websocket) {
+      websocket.call('holo/get-hosted', { agentId: getCurrentAgentId() })
+    } else {
+      throw Error('Cannot request registration with no websocket')
+    }
+  }
+
+  /**
      * Preprocesses the callString and params before making a call
      *
      * @param      {string}  callString  The call string e.g. dna/zome/function
      * @param      {Object}  params      The parameters
      * @return     {Object}  The updated callString and params passed to call
      */
-  const _preCall = (callString, params) => {
-    // TODO: sign the call and add the signature to the params object
+  const _preCall = async (callString, params) => {
     if (!keypair) {
       throw new Error('trying to call with no keys')
     } else {
       console.log('call will be signed with', keypair)
+
+      const call = {
+        method: callString,
+        params
+      }
+
+      const signature = await keypair.sign(JSON.stringify(call))
 
       const callParams = {
         agentId: getCurrentAgentId(),
@@ -123,7 +141,7 @@ const hClient = (function () {
         dnaHash: 'TODO',
         function: callString,
         params,
-        signature: 'TODO'
+        signature
       }
 
       return { callString: 'holo/call', params: callParams }
@@ -145,6 +163,7 @@ const hClient = (function () {
         generateNewReadwriteKeypair(email, password).then(kp => {
           console.log('Registered keypair is ', kp)
           setKeypair(kp)
+          requestHosting()
         })
       })
     }
