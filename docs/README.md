@@ -36,15 +36,13 @@ This has its own inline scoped CSS and should not interfere with the rest of the
 
 ## Running tests
 
-### Standalone tests
+### Unit tests
 
-Standalone tests can be run in the browser by running the following:
+Unit tests exist for hClient and can be run using:
 ```
-cd test
+cd ./web/hClient
 npm install
-npm run test &
-... wait for servers to build and start
-firefox localhost:1234
+npm run test
 ```
 
 Firefox can be substituted for any other browser to test compatibility. This may not be the best way to do tests in CI but many of them require the DOM and other browser specific features.
