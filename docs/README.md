@@ -40,6 +40,12 @@ This has its own inline scoped CSS and should not interfere with the rest of the
 
 ## Running tests
 
+After cloning the repo first initlsize the submodules by running
+```
+git submodule init
+git submodule update
+```
+
 ### Unit tests
 
 Unit tests exist for hClient and can be run using:
