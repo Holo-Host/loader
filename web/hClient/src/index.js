@@ -20,9 +20,10 @@ const hClient = (function () {
     generateNewReadwriteKeypair
   } = require('./keyManagement')
 
-  const getDefaultWebsocketUrl = () => 'ws://' + location.hostname + ':' + location.port
+  const getDefaultWebsocketUrl = () => 'ws://' + location.hostname + ':' + 4001
 
   let keypair
+  let websocket
 
   /**
      * Wraps and returns a holochainClient module.
@@ -46,7 +47,8 @@ const hClient = (function () {
       connect: () => holochainClient.connect(url).then(({ call, close, ws }) => {
         ws = postConnect(ws)
         return {
-          call: (callString) => (params) => {
+          call: (...callStringSegments) => (params) => {
+            const callString = callStringSegments.length === 1 ? callStringSegments[0] : callStringSegments.join('/')
             const { callString: newCallString, params: newParams } = preCall(callString, params)
             return call(newCallString)(newParams).then(postCall)
           },
@@ -72,6 +74,38 @@ const hClient = (function () {
   }
 
   /**
+   * Setter for the keypair
+   * Attaches a new event listener on the websocket for the new agentID
+   *
+   * @param      {Keypair}  kp      dpki-lite keypair object to attach to the instance
+   */
+  const setKeypair = (kp) => {
+    keypair = kp
+
+    // set up the websocket to sign on request
+    // TODO: namespace the callback by agent ID for this key
+    const event = `agent/${getCurrentAgentId()}/sign`
+
+    if (websocket) {
+      websocket.call('holo/identify', { agentId: getCurrentAgentId() }).then((response) => {
+        if (response.Ok) {
+          websocket.subscribe(event)
+          websocket.on(event, ({ entry, id }) => {
+            keypair.sign(entry).then(signature => {
+              websocket.call('holo/clientSignature', {
+                signature,
+                requestId: id
+              })
+            })
+          })
+        }
+      })
+    } else {
+      throw Error('Could not register callback as no valid websocket instance found')
+    }
+  }
+
+  /**
      * Preprocesses the callString and params before making a call
      *
      * @param      {string}  callString  The call string e.g. dna/zome/function
@@ -84,7 +118,17 @@ const hClient = (function () {
       throw new Error('trying to call with no keys')
     } else {
       console.log('call will be signed with', keypair)
-      return { callString, params }
+
+      const callParams = {
+        agentId: getCurrentAgentId(),
+        happId: 'TODO',
+        dnaHash: 'TODO',
+        function: callString,
+        params,
+        signature: 'TODO'
+      }
+
+      return { callString: 'holo/call', params: callParams }
     }
   }
 
@@ -95,20 +139,21 @@ const hClient = (function () {
      * @return     {string}  Updated response
      */
   const _postCall = (response) => {
-    // TODO: Check response for authentication error to see if login is required
-    // TODO: Sign the response and sent it back to the interceptor
-    // TODO: Unpack the response to expose to the UI code (make it look like a regular holochain call)
-
     response = JSON.parse(response)
 
+    // Check response for authentication error to see if login is required
     if (response.Err && response.Err.code === 401) {
       showLoginDialog((email, password) => {
         generateNewReadwriteKeypair(email, password).then(kp => {
           console.log('Registered keypair is ', kp)
-          keypair = kp
+          setKeypair(kp)
         })
       })
     }
+
+    // TODO: Sign the response and sent it back to the interceptor
+
+    // TODO: Unpack the response to expose to the UI code (make it look like a regular holochain call)
 
     return response
   }
@@ -119,16 +164,11 @@ const hClient = (function () {
      * @param      {Object}  ws      { rpc=websockets object }
      */
   const _postConnect = (ws) => {
-    // TODO: subscribe to a rpc-websocket callback for sigining actions
-    // e.g.
-    // ws.subscribe("sign_entry");
-    // ws.on("sign_entry", () => {
-    //     // Sign the response and then send it back to the interceptor
-    // });
+    websocket = ws
+
     console.log('generating readonly keypair')
     generateReadonlyKeypair().then(kp => {
-      console.log('temp keypair is ', kp)
-      keypair = kp
+      setKeypair(kp)
     })
 
     return ws
