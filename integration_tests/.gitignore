@@ -1,6 +1,7 @@
 node_modules
 .cache
-host_server
+host_server/hClient.js
+host_server/hClient.map
 loader_server
 screenshots
 videos

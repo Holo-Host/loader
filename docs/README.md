@@ -45,7 +45,7 @@ npm install
 npm run test
 ```
 
-Firefox can be substituted for any other browser to test compatibility. This may not be the best way to do tests in CI but many of them require the DOM and other browser specific features.
+These do not run in a browser 
 
 ### Integration tests
 

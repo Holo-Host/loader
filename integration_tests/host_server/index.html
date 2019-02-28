@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>holochainclient test</title>
+  <meta charset="UTF-8"/>
+</head>
+<body>
+
+  <button id="show-login">Show login</button>
+  <button id="make-valid-call">Make call</button>
+  <button id="trigger-unauthorized">Trigger unauthorized</button>
+
+
+  <script type="text/javascript" src="hc-web-client.js"></script>
+  <script type="text/javascript" src="hClient.js"></script>
+
+  <script type="text/javascript">
+
+   window.holochainclient = window.hClient.makeWebClient(window.holochainclient)
+   window.hClient.insertLoginHtml();
+   window.hClient.registerLoginCallbacks();
+
+   window.holochainclient.connect().then(({call}) => {
+
+     document.getElementById("show-login").onclick = function() {  
+          window.hClient.showLoginDialog(); 
+      };  
+
+      document.getElementById("make-valid-call").onclick = function() {  
+          call('instance', 'zome', 'function')({test: "parameters"}).then(result => console.log(result));
+      };  
+
+     document.getElementById("trigger-unauthorized").onclick = function() {  
+          call('instance', 'zome', 'function')({Err: {code: 401}}).then(result => console.log(result));
+      };  
+
+   });
+
+  </script>
+</body>
+</html>
