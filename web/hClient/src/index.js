@@ -79,7 +79,7 @@ const hClient = (function () {
    *
    * @param      {Keypair}  kp      dpki-lite keypair object to attach to the instance
    */
-  const setKeypair = (kp) => {
+  const setKeypair = async (kp) => {
     keypair = kp
 
     // set up the websocket to sign on request
@@ -87,19 +87,17 @@ const hClient = (function () {
     const event = `agent/${getCurrentAgentId()}/sign`
 
     if (websocket) {
-      websocket.call('holo/identify', { agentId: getCurrentAgentId() }).then((response) => {
-        if (response.Ok) {
-          websocket.subscribe(event)
-          websocket.on(event, ({ entry, id }) => {
-            keypair.sign(entry).then(signature => {
-              websocket.call('holo/clientSignature', {
-                signature,
-                requestId: id
-              })
-            })
+      const response = await websocket.call('holo/identify', { agentId: getCurrentAgentId() })
+      if (response.Ok) {
+        websocket.subscribe(event)
+        websocket.on(event, async ({ entry, id }) => {
+          const signature = await keypair.sign(entry)
+          websocket.call('holo/clientSignature', {
+            signature,
+            requestId: id
           })
-        }
-      })
+        })
+      }
     } else {
       throw Error('Could not register callback as no valid websocket instance found')
     }

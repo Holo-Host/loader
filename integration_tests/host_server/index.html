@@ -27,11 +27,11 @@
       };  
 
       document.getElementById("make-valid-call").onclick = function() {  
-          call('instance', 'zome', 'function')({test: "parameters"}).then(result => console.log(result));
+          call('instance', 'zome', 'needs_sig_function')({test: "parameters"}).then(result => console.log(result));
       };  
 
      document.getElementById("trigger-unauthorized").onclick = function() {  
-          call('instance', 'zome', 'function')({Err: {code: 401}}).then(result => console.log(result));
+          call('instance', 'zome', 'unauthorized_function')({test : "parameters"}).then(result => console.log(result));
       };  
 
    });
