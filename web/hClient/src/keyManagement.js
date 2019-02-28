@@ -22,7 +22,9 @@ const callSaltmine = (method, params) => {
   if (method === 'GET') {
     body = undefined
   } else {
-    body = new URLSearchParams(params)
+    body = Object.keys(params).map((key) => {
+      return encodeURIComponent(key) + '=' + encodeURIComponent(params[key])
+    }).join('&')
   }
   return fetch(saltmineUrl, {
     method: method,
@@ -30,7 +32,7 @@ const callSaltmine = (method, params) => {
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded' // Do not change or CORS will come and eat you alive (it does anyway!)
     },
-    body
+    body: body
   })
 }
 
