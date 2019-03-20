@@ -4,7 +4,6 @@
  * Public API exposes: initHapp()
  * TODO: In the future if the process of connecting to the host takes time (like more than 500ms)
  *       display nice Holo logo and something like "Connecting to Holo network..."
- * TODO: remove all the logging except one
  * 
  */
 
@@ -17,7 +16,7 @@ window.hLoader = (function(){
 
     // Private data store of the module
     let _url = '', // Url of the current hApp (host name from the browser's location field)
-        _dna = '', // Hash of bundle of the current hApp
+        _bundleHash = '', // Hash of bundle of the current hApp
         _UI_tranche = []; // Tranche - array of host addresses that serve given hApp's UI
 
     /**
@@ -53,12 +52,11 @@ window.hLoader = (function(){
      * Query Cloudflare worker resolver for array of hosts serving anonymous version of hApp that is
      * registered with given URL. Can be identified by url or bundle hash, hash takes precedence.
      * @param {string} url Url of the requested hApp
-     * @param {string} dna Hash of a bundle of requested hApp
-     * @return {Object} {dna: '', ips: []} Hash of DNA and array of IPs
-     * TODO: Make sure resolver works that way and replace 'DNA' with 'bundleHash'
+     * @param {string} bundleHash Hash of a bundle of requested hApp
+     * @return {Object} {bundleHash: '', ips: []} Hash of bundle and array of IPs
      */
-    const queryForHosts = (url = "", dna = "") => {
-        console.log('getting hosts for ', url);
+    const queryForHosts = (url = "", bundleHash = "") => {
+        console.log('Getting hosts for ', url);
         // Call worker to resolve url to array of addresses of HoloPort
         return fetch(settings.resolverUrl, {
                 method: "POST",
@@ -67,10 +65,9 @@ window.hLoader = (function(){
                 headers: {
                     "Content-Type": "application/x-www-form-urlencoded", // Do not change or CORS will come and eat you alive
                 },
-                body: 'url=' + encodeURIComponent(url) + '&dna=' + encodeURIComponent(dna)
+                body: 'url=' + encodeURIComponent(url) + '&dna=' + encodeURIComponent(bundleHash)
             })
             .then(r => {
-                console.log("response", r)
                 return r.json();
               }
             );
@@ -80,11 +77,11 @@ window.hLoader = (function(){
      * Process response from the workers - for now trivialy just select first IP from array
      * @param {Object} obj Response from resolver Cloudflare worker
      * @param {array} obj.hosts Array of ips (or FQDNs) of HoloPorts serving given hApp
-     * @param {string} obj.dna Hash of a DNA of requested hApp
+     * @param {string} obj.dna Hash of a bundle of requested hApp
      * @return {string} Return address of a host to initiate connection
      */
     const processWorkerResponse = obj => {
-        console.log("processing worker response");
+        console.log("Processing worker response");
 
         // Save somewhere hApp bundle's hash
         if (typeof obj.dna !== 'string' || obj.dna === "") {
@@ -92,9 +89,7 @@ window.hLoader = (function(){
                 code: 404
             };
         } else {
-            console.log(obj.dna);
-            _dna = obj.dna;
-            console.log(_dna);
+            _bundleHash = obj.dna;
         }
 
         // Extract an IP that we want to grab
@@ -105,9 +100,7 @@ window.hLoader = (function(){
             return;
         } else {
             // Trivial now
-            console.log(obj.hosts);
             _UI_tranche = obj.hosts;
-            console.log(_UI_tranche);
             return _UI_tranche[0];
         }
     }
@@ -146,7 +139,7 @@ window.hLoader = (function(){
         window.location.href = settings.errorUrl
                              + '?errorCode=' + e.code
                              + ((_url) ? ('&url=' + encodeURI(_url)) : "")
-                             + ((_dna) ? ('&dna=' + encodeURI(_dna)) : "");
+                             + ((_bundleHash) ? ('&dna=' + encodeURI(_bundleHash)) : "");
                              */
     }
 
