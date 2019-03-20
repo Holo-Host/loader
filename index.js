@@ -11,7 +11,7 @@ window.hLoader = (function(){
     // Networking settings etc
     const settings = {
         resolverUrl: '//resolver.holohost.net', // Address of url resolver service worker
-        errorUrl:  '//loader1.holohost.net/error.html' // Address of an error page handler TODO: check this, add error/ to repo
+        errorUrl:  '//loader.holohost.net/error.html' // Address of an error page handler
     };
 
     // Private data store of the module
@@ -40,11 +40,9 @@ window.hLoader = (function(){
                 return fetchHappContent(addr);
             })
             .then(html => replaceHtml(html, addr))
-            /*
             .catch(e => handleError({
                 code: e.code
             }))
-            */
            ;
     }
 
@@ -135,12 +133,10 @@ window.hLoader = (function(){
             }
         }
 
-        /*
         window.location.href = settings.errorUrl
                              + '?errorCode=' + e.code
                              + ((_url) ? ('&url=' + encodeURI(_url)) : "")
                              + ((_bundleHash) ? ('&dna=' + encodeURI(_bundleHash)) : "");
-                             */
     }
 
     /**
