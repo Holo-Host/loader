@@ -17,7 +17,8 @@ window.hLoader = (function(){
     // Private data store of the module
     let _url = '', // Url of the current hApp (host name from the browser's location field)
         _bundleHash = '', // Hash of bundle of the current hApp
-        _UI_tranche = []; // Tranche - array of host addresses that serve given hApp's UI
+        _UI_tranche = [], // Tranche - array of host addresses that serve given hApp's UI
+        _UI_host = ''; // Currently queried host
 
     /**
      * Init hApp by taking url and grabing content from resolved HoloPort address
@@ -35,8 +36,8 @@ window.hLoader = (function(){
         let addr; // Dirty global trick, haha not realy because we are in the closure :-)
         queryForHosts(_url)
             .then(obj => processWorkerResponse(obj))
-            .then(r => {
-                addr = formatAddress(r);
+            .then(() => {
+                addr = formatAddress();
                 return fetchHappContent(addr);
             })
             .then(html => replaceHtml(html, addr))
@@ -99,7 +100,7 @@ window.hLoader = (function(){
         } else {
             // Trivial now
             _UI_tranche = obj.hosts;
-            return _UI_tranche[0];
+            _UI_host = _UI_tranche[0];
         }
     }
 
@@ -177,20 +178,19 @@ window.hLoader = (function(){
      * that will give //test.holo.host:4141/000bundleHash000/
      * TODO: make sure we can ignore any possible path in the url (stuff after slash)
      * 
-     * @param {string} ulr HoloPort's hostname (can be with port)
-     * @param {string} bundelHash Html to add tag to
+     * No params because I love this ugly non-funcitonal way of passing values via global variables ugh.
      * @return {string} formated URI
      */
-    const formatAddress = url => {
-        const urlObj = new URL(url);
+    const formatAddress = () => {
+        const urlObj = _UI_host.replace('http://','').replace('https://','').split(/[/?#]/);
 
         // Check if host or bundleHash are non empty
-        if (urlObj.host === "" || bundelHash === "")
+        if (urlObj.length === 0 || urlObj[0] === "" || _bundleHash === "")
             throw {
                 code: 404
             };
 
-        return '//' + urlObj.host + '/' + bundelHash + '/';
+        return 'http://' + urlObj[0] + '/' + _bundleHash + '/';
     }
 
     // Public API
