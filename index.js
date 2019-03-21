@@ -134,10 +134,10 @@ window.hLoader = (function(){
             }
         }
 
-        window.location.href = settings.errorUrl
+        /*window.location.href = settings.errorUrl
                              + '?errorCode=' + e.code
                              + ((_url) ? ('&url=' + encodeURI(_url)) : "")
-                             + ((_bundleHash) ? ('&dna=' + encodeURI(_bundleHash)) : "");
+                             + ((_bundleHash) ? ('&dna=' + encodeURI(_bundleHash)) : "");*/
     }
 
     /**
