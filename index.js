@@ -190,7 +190,8 @@ window.hLoader = (function(){
                 code: 404
             };
 
-        return 'http://' + urlObj[0] + '/' + _bundleHash + '/';
+        return 'http://' + urlObj[0];
+        //return 'http://' + urlObj[0] + '/' + _bundleHash + '/';
     }
 
     // Public API
