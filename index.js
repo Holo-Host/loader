@@ -1,10 +1,10 @@
 /**
  * hLoader is a self-initiating script that downloads hApp's UI from HoloPorts on Holo network
- * 
+ *
  * Public API exposes: initHapp()
  * TODO: In the future if the process of connecting to the host takes time (like more than 500ms)
  *       display nice Holo logo and something like "Connecting to Holo network..."
- * 
+ *
  */
 
 window.hLoader = (function(){
@@ -22,8 +22,8 @@ window.hLoader = (function(){
 
     /**
      * Init hApp by taking url and grabing content from resolved HoloPort address
-     * TODO: Loader should look for a _UI_tranche in localStorage(). If not found it should download _UI_tranche 
-     *       from resolver.holohost.net and save it in the localStorge() for later use. 
+     * TODO: Loader should look for a _UI_tranche in localStorage(). If not found it should download _UI_tranche
+     *       from resolver.holohost.net and save it in the localStorge() for later use.
      *       We will also want to have some mechanism of detecting failed calls to hosts,
      *       making call to another host from the list and reporting slacker
      *       to the tranche service
@@ -64,7 +64,7 @@ window.hLoader = (function(){
                 headers: {
                     "Content-Type": "application/x-www-form-urlencoded", // Do not change or CORS will come and eat you alive
                 },
-                body: 'url=' + encodeURIComponent(url) + '&dna=' + encodeURIComponent(bundleHash)
+                body: 'url=' + encodeURIComponent(url) + '&hash=' + encodeURIComponent(bundleHash)
             })
             .then(r => {
                 return r.json();
@@ -76,19 +76,19 @@ window.hLoader = (function(){
      * Process response from the workers - for now trivialy just select first IP from array
      * @param {Object} obj Response from resolver Cloudflare worker
      * @param {array} obj.hosts Array of ips (or FQDNs) of HoloPorts serving given hApp
-     * @param {string} obj.dna Hash of a bundle of requested hApp
+     * @param {string} obj.hash Hash of a bundle of requested hApp
      * @return {string} Return address of a host to initiate connection
      */
     const processWorkerResponse = obj => {
         console.log("Processing worker response");
 
         // Save somewhere hApp bundle's hash
-        if (typeof obj.dna !== 'string' || obj.dna === "") {
+        if (typeof obj.hash !== 'string' || obj.hash === "") {
             throw {
                 code: 404
             };
         } else {
-            _bundleHash = obj.dna;
+            _bundleHash = obj.hash;
         }
 
         // Extract an IP that we want to grab
@@ -137,7 +137,7 @@ window.hLoader = (function(){
         /*window.location.href = settings.errorUrl
                              + '?errorCode=' + e.code
                              + ((_url) ? ('&url=' + encodeURI(_url)) : "")
-                             + ((_bundleHash) ? ('&dna=' + encodeURI(_bundleHash)) : "");*/
+                             + ((_bundleHash) ? ('&hash=' + encodeURI(_bundleHash)) : "");*/
     }
 
     /**
@@ -156,7 +156,7 @@ window.hLoader = (function(){
     /**
      * Add <base> tag that defines host for relative urls on page.
      * This is required so the bootstrapped HTML is able to load its other static assets
-     * 
+     *
      * @param {string} html Html to add tag to
      * @param {string} url hostname
      * @return {string} Html with <base> tag inserted
@@ -177,7 +177,7 @@ window.hLoader = (function(){
      * 000bundleHash000/ is for bundelHash
      * that will give //test.holo.host:4141/000bundleHash000/
      * TODO: make sure we can ignore any possible path in the url (stuff after slash)
-     * 
+     *
      * No params because I love this ugly non-funcitonal way of passing values via global variables ugh.
      * @return {string} formated URI
      */
