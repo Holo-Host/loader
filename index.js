@@ -181,7 +181,7 @@ window.hLoader = (function(){
             str = str.slice(2);
 
         // return 'http://' + urlObj[0];
-        return 'http://' + _bundleHash + '/' + str + '/';
+        return 'http://' + _bundleHash + '.' + str + '/';
     }
 
     // Public API
