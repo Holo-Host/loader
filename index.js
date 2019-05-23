@@ -83,7 +83,7 @@ window.hLoader = (function(){
                 code: 404
             };
         } else {
-            _bundleHash = obj.hash;
+            _bundleHash = obj.hash.trim();
         }
 
         // Extract an IP that we want to grab
@@ -170,9 +170,18 @@ window.hLoader = (function(){
             throw {
                 code: 404
             };
+        
+        // Also check if url starts with hc as expected and then truncate it.
+        let str = urlObj[0].toLowerCase().trim();   
+        if (str.slice(0, 2) !== "hc")
+            throw {
+                code: 404
+            };
+        else
+            str = str.slice(2);
 
         // return 'http://' + urlObj[0];
-        return 'http://' + urlObj[0] + '/' + _bundleHash + '/';
+        return 'http://' + _bundleHash + '/' + str + '/';
     }
 
     // Public API
