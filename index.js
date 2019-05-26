@@ -171,14 +171,14 @@ window.hLoader = (function(){
                 code: 404
             };
         
-        // Also check if url starts with hc as expected and then truncate it.
+        // Also check if url starts with hc as expected and then truncate it TODO remove
         let str = urlObj[0].toLowerCase().trim();   
-        if (str.slice(0, 2) !== "hc")
+        /* if (str.slice(0, 2) !== "hc")
             throw {
                 code: 404
             };
         else
-            str = str.slice(2);
+            str = str.slice(2);*/
 
         // return 'http://' + urlObj[0];
         return 'http://' + _bundleHash + '.' + str + '/';
