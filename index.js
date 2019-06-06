@@ -33,14 +33,9 @@ window.hLoader = (function(){
         // Grab url of hApp
         _url = window.location.hostname;
 
-        let addr; // Dirty global trick, haha not realy because we are in the closure :-)
         queryForHosts(_url)
             .then(obj => processWorkerResponse(obj))
-            .then(() => {
-                addr = formatAddress();
-                return fetchHappContent(addr);
-            })
-            .then(html => replaceHtml(html, addr))
+            .then(() => replaceHtml())
             .catch(e => handleError({
                 code: e.code
             }))
@@ -88,7 +83,7 @@ window.hLoader = (function(){
                 code: 404
             };
         } else {
-            _bundleHash = obj.hash;
+            _bundleHash = obj.hash.trim();
         }
 
         // Extract an IP that we want to grab
@@ -102,17 +97,6 @@ window.hLoader = (function(){
             _UI_tranche = obj.hosts;
             _UI_host = _UI_tranche[0];
         }
-    }
-
-    /**
-     * Fetch hApp content from the given HoloPort
-     * @param {string} addr Address serving static UI elements of the hApp
-     * @return {Promise} Html of the hApp
-     */
-    const fetchHappContent = (addr) => {
-        // Fetch hApp content from selected HoloPort
-        return fetch(addr)
-            .then(r => r.text())
     }
 
     /**
@@ -141,34 +125,31 @@ window.hLoader = (function(){
     }
 
     /**
-     * Replace entire html of the page
-     * @param {string} html New html to replace the old one
-     * @param {string} addr Address serving static UI elements
+     * This function is actually removing all the content of the body and creating iFrame
+     * where entire UI of a hApp is loaded from HoloPort.
+     * This gives us consistent behaviour of the UI (no hacks)
+     * while leaving url in browser intact
      * @return null
      */
-    const replaceHtml = (html, addr) => {
-        html = replaceBase(html, addr);
-        document.open();
-        document.write(html);
-        document.close();
+    const replaceHtml = () => {
+        let addr = formatAddress();
+
+        // create iFrame
+        let frame = document.createElement('iframe');
+        frame.setAttribute('id', 'main');
+        frame.setAttribute('src', addr);
+        frame.setAttribute('style', 'position:fixed; top:0; left:0; bottom:0; right:0; width:100%; height:100%; border:none; margin:0; padding:0; overflow:hidden; z-index:999999;')
+
+        // replace body with created iFrame
+        document.getElementById('old_main').replaceWith(frame);
+
+        // TODO: establish inter-frame communication with Window​.post​Message()
+        // to listen to title updates (window.document.title),
+        // url updates (https://stackoverflow.com/a/3354511/1182050),
+        // etc.
     }
 
-    /**
-     * Add <base> tag that defines host for relative urls on page.
-     * This is required so the bootstrapped HTML is able to load its other static assets
-     *
-     * @param {string} html Html to add tag to
-     * @param {string} url hostname
-     * @return {string} Html with <base> tag inserted
-     */
-    const replaceBase = (html, url) => {
-        const parser = new DOMParser();
-        let doc = parser.parseFromString(html, "text/html");
-        let base = doc.createElement("base");
-        base.href = `${url}`;
-        doc.head.appendChild(base);
-        return doc.documentElement.outerHTML;
-    }
+
 
     /**
      * Format HoloPort's FQDN so that everything works as gold:
@@ -189,9 +170,18 @@ window.hLoader = (function(){
             throw {
                 code: 404
             };
+        
+        // Also check if url starts with hc as expected and then truncate it TODO remove
+        let str = urlObj[0].toLowerCase().trim();   
+        /* if (str.slice(0, 2) !== "hc")
+            throw {
+                code: 404
+            };
+        else
+            str = str.slice(2);*/
 
         // return 'http://' + urlObj[0];
-        return 'http://' + urlObj[0] + '/' + _bundleHash + '/';
+        return 'http://' + _bundleHash + '.' + str + '/';
     }
 
     // Public API

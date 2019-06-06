@@ -10,9 +10,9 @@ Every Holo web application starts from the hLoader index.html and index.js. The 
 
 The resolved returns a collection of host URLs, currently the first one is selected.
 
-The loader then retrieves the index.html for the desired web UI and replaces the html `<base>` tag such that additional assets are retrived from the host instead of the current URL. This is also used to configure the websocket connection in [hClient.js](https://github.com/Holo-Host/hClient.js/), the client side holo library, so that it can redirect holochain calls to the holo host.
+The loader then loads content of the hApp into the iFrame. This is also used to configure the websocket connection in [hClient.js](https://github.com/Holo-Host/hClient.js/), the client side holo library, so that it can redirect holochain calls to the holo host.
 
-After this the loader effectively erases itself by replacing the window HTML with that loaded from the host. The browser URL will continue to display the location where the loader was retrieved but by this stage all requests are directed to the host.
+In the next iteration iFrame will communicate with parent window to update page title, update url and handle browsing history.
 
 ## Deployment
 
