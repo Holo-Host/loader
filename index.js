@@ -47,10 +47,16 @@ window.hLoader = (function(){
      * registered with given URL. Can be identified by url or bundle hash, hash takes precedence.
      * @param {string} url Url of the requested hApp
      * @param {string} bundleHash Hash of a bundle of requested hApp
-     * @return {Object} {bundleHash: '', ips: []} Hash of bundle and array of IPs
+     * @return {Object} {hash: '', hosts: []} Hash of bundle and array of IPs
      */
     const queryForHosts = (url = "", bundleHash = "") => {
         console.log('Getting hosts for ', url);
+
+        if(window.HCLIENT_RESOLVER_MOCK_RESPONSE) {
+            console.log('Found resolver response mock');
+            return Promise.resolve(window.HCLIENT_RESOLVER_MOCK_RESPONSE);
+        }
+
         // Call worker to resolve url to array of addresses of HoloPort
         return fetch(settings.resolverUrl, {
                 method: "POST",
@@ -170,9 +176,9 @@ window.hLoader = (function(){
             throw {
                 code: 404
             };
-        
+
         // Also check if url starts with hc as expected and then truncate it TODO remove
-        let str = urlObj[0].toLowerCase().trim();   
+        let str = urlObj[0].toLowerCase().trim();
         /* if (str.slice(0, 2) !== "hc")
             throw {
                 code: 404
