@@ -3,9 +3,12 @@
     <head>
         <script>
             window.HCLIENT_RESOLVER_MOCK_RESPONSE = {
-                hash: 'bundle_hash', // Bundel hash of served hApp
+                // Holo Hosting App ID (change)
+                hash: 'QmdBcb2eiXwm7P7KH54Wj7BLfio2n62fLpdRHGMyx5LfP9_CHANGEME',
                 hosts: [
-                    "pubkey.holohost.net:8881", // arbitrary address, 8881 is a port that envoy is listening on
+                    // `pubkey` is arbitrary,
+                    // 48080 is the port that envoy is listening on for static asset serving
+                    "pubkey.holohost.net:48080",
                 ],
             };
         </script>
