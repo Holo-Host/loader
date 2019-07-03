@@ -13,10 +13,22 @@ export default class HoloResolver {
         this._url = location.hostname;
     }
 
+    getIframeAddress = (bundleHash) =>
+        this.getHost()
+            .then(this.formatAddress)
+
+    getHost = (bundleHash) =>
+        this.queryForHosts(bundleHash)
+            .then(this.processWorkerResponse)
+
+            // TODO: Handle net errors separately
+            .catch(e => resolver.handleError({
+                code: e.code
+            }));
+
     /**
      * Query Cloudflare worker resolver for array of hosts serving anonymous version of hApp that is
      * registered with given URL. Can be identified by url or bundle hash, hash takes precedence.
-     * @param {string} url Url of the requested hApp
      * @param {string} bundleHash Hash of a bundle of requested hApp
      * @return {Object} {hash: '', hosts: []} Hash of bundle and array of IPs
      */
@@ -119,14 +131,7 @@ export default class HoloResolver {
 
         // Also check if url starts with hc as expected and then truncate it TODO remove
         const str = urlObj[0].toLowerCase().trim();
-        /* if (str.slice(0, 2) !== "hc")
-            throw {
-                code: 404
-            };
-        else
-            str = str.slice(2);*/
 
-        // return 'http://' + urlObj[0];
         return 'http://' + this._bundleHash + '.' + str + '/';
     }
 }
