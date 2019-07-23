@@ -1,7 +1,9 @@
+const path = require('path')
 const cors = require('cors')
 const express = require('express')
 const morgan = require('morgan')
 const app = express()
+const Bundler = require('parcel-bundler')
 const port = 80
 
 const hostingAppId = process.argv[2]
@@ -14,6 +16,10 @@ if (!hostingAppId) {
   process.exit(1)
 }
 
+const bundler = new Bundler('dev/index.html', {
+  outDir: './dist-dev'
+});
+
 app.use(morgan('dev'))
 app.use(cors({origin: true}))
 
@@ -25,14 +31,19 @@ app.use('/', (req, res, next) => {
         hosts: [
             // `pubkey` is arbitrary,
             // 48080 is the port that envoy is listening on for static asset serving
-            "pubkey.holohost.net:48080",
+            "pubkey.holohost.net",
         ],
     })
+  } else if (req.hostname === `${hostingAppId.toLowerCase()}.pubkey.holohost.net`) {
+    // res.send('hello')
+    next()
   } else {
     next()
   }
 })
 
-app.use(express.static(__dirname))
+app.use(bundler.middleware())
+
+// app.use(express.static(path.join(__dirname, 'dev')))
 
 app.listen(port, () => console.log(`Mock resolver listening on port ${port} for HHA ID: ${hostingAppId}`))
