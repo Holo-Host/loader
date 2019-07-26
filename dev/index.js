@@ -1,6 +1,6 @@
-import MessageBusConsumer from '../src/modules/message-bus/consumer';
+import MessageBusConsumer from '../src/modules/message-bus/consumer'
 
-const testCallback = (action, data) => console.log('consumer got message', action, data);
+const testCallback = (action, data) => console.log('consumer got message', action, data)
 
 const bus = new MessageBusConsumer(window)
 // const subscription = bus.subscribe(testCallback);
@@ -15,4 +15,3 @@ bus.request()
     .then(() => {})
     .catch(() => {})
 */
-
