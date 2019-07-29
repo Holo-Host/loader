@@ -20,7 +20,10 @@ export default class MessageBusPubSub {
       )
     }
 
-    this._subscribers[topic] = [...this._subscribers[topic], callback]
+    this._subscribers[topic] = [
+      ...this._subscribers[topic] || [],
+      callback
+    ]
     return () => this._unsubscribe(topic, callback)
   }
 
@@ -32,10 +35,10 @@ export default class MessageBusPubSub {
     }
 
     [
-      ...this._subscribers[topic],
+      ...this._subscribers[topic] || [],
       ...this._subscribers[ALL_TOPICS]
     ].forEach((subscriber) => {
-      subscriber(data)
+      subscriber(topic, data)
     })
   }
 

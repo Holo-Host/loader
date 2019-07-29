@@ -30,7 +30,8 @@ window.hLoader = (function () {
       .then(replaceHtml)
       .then(iframe => {
         const bus = new MessageBusProvider(window, iframe)
-        // const subscription = bus.subscribe(testCallback)
+        bus.sendMessage('moja wiadomosc')
+        const subscription = bus.subscribe(testCallback)
 
         // subscription.unsub();
       })

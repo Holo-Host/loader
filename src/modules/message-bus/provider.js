@@ -17,6 +17,8 @@ export default class MessageBusProvider {
 
   _pubSub = null
 
+  _messageQueue = []
+
   constructor (window, targetContext) {
     if (!targetContext) {
       throw Error('Need to specify targetContext MessageBus will send messages to')
@@ -25,18 +27,11 @@ export default class MessageBusProvider {
     this._window = window
     this._targetContext = targetContext
     this._attachGlobalListener()
+    this._setupPubSub()
   }
 
   _attachGlobalListener = () => {
     this._window.addEventListener('message', this._handleGlobalMessage)
-  }
-
-  _sendMessage = (action, payload = null) => {
-    if (!this._channel) {
-      return
-    }
-
-    this._channel.postMessage(createMessage({ action, payload }))
   }
 
   _setChannel = channel => {
@@ -55,15 +50,18 @@ export default class MessageBusProvider {
   }
 
   _setupPubSub = () => {
-    if (this._pubSub) {
-      // Publish RESET event, so that MessageBus user can be aware of the event
-      // and abort it's actions if necessary (eg. sending sensitive data
-      // to wrong consumer/app)
-      this._pubSub.publish(BUS_CHANNEL_RESET)
+    this._pubSub = new MessageBusPubSub()
+  }
+
+  _resetPubSub = () => {
+    if (!this._pubSub) {
       return
     }
 
-    this._pubSub = new MessageBusPubSub()
+    // Publish RESET event, so that MessageBus user can be aware of the event
+    // and abort it's actions if necessary (eg. sending sensitive data
+    // to wrong consumer/app)
+    this._pubSub.publish(BUS_CHANNEL_RESET)
   }
 
   _handleGlobalMessage = ({ source, data, ports } = {}) => {
@@ -78,15 +76,26 @@ export default class MessageBusProvider {
       return
     }
 
+    if (this._channelAck) {
+      this._resetPubSub()
+    }
+
     this._setChannel(ports[0])
-    this._setupPubSub()
     this._attachChannelListener(ports[0])
   }
 
   _handleChannelMessage = ({ data: { message } = {} } = {}) => {
+    if (!message) {
+      return
+    }
+
     if (message === BUS_CHANNEL_INIT_ACK) {
-      this._channelAck = true
-      console.log('MessageBusProvider: Successfully set the messaging channel')
+      this._handleAck()
+      return
+    }
+
+    if (!this._channelAck) {
+      console.warn('MessageBusProvider got message on the channel before the connection was acknowledged')
       return
     }
 
@@ -97,4 +106,32 @@ export default class MessageBusProvider {
 
     this._pubSub.publish(message.action, message.payload)
   }
+
+  _handleAck = () => {
+    this._channelAck = true
+    console.log('MessageBusProvider: Successfully set the messaging channel')
+    this._processMessageQueue()
+  }
+
+  _processMessageQueue = () => {
+    while (this._messageQueue.length) {
+      const message = this._messageQueue.shift()
+      this._sendMessage(message)
+    }
+  }
+
+  _sendMessage = (message) => {
+    if (!this._channelAck) {
+      this._messageQueue.push(message)
+      return
+    }
+
+    this._channel.postMessage(createMessage(message))
+  }
+
+  sendMessage = (action, payload = null) => {
+    this._sendMessage({ action, payload })
+  }
+
+  subscribe = (callback, eventType) => this._pubSub.subscribe(callback, eventType)
 }
