@@ -20,7 +20,7 @@ const testCallback = (action, data) => {
   )
 }
 
-const subscription = bus.subscribe(testCallback, 'GET_APP_ID' + REQEUST_ACTION_SUFFIX)
+bus.subscribe(testCallback, 'GET_APP_ID' + REQEUST_ACTION_SUFFIX)
 
 bus.makeRequest('GET_HOSTS', 'QmWzAyDWAeYYQVPAK87qPQryBLhje26dWvaYDMWcLgkwfe').then(
   (data) => console.log('successfully got hosts from loader', data),

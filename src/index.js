@@ -50,7 +50,7 @@ window.hLoader = (function () {
             )
         }
 
-        const subscription = bus.subscribe(testCallback, 'GET_HOSTS' + REQEUST_ACTION_SUFFIX)
+        bus.subscribe(testCallback, 'GET_HOSTS' + REQEUST_ACTION_SUFFIX)
 
         bus.makeRequest('GET_APP_ID').then(
           (data) => console.log('successfully obtained app id from client', data),
