@@ -3,7 +3,10 @@ import MessageBusPubSub from './pubsub'
 import {
   BUS_CHANNEL_SETUP_INIT,
   BUS_CHANNEL_RESET,
-  BUS_CHANNEL_INIT_ACK
+  BUS_CHANNEL_INIT_ACK,
+  REQEUST_ACTION_SUFFIX,
+  REQEUST_SUCCESS_ACTION_SUFFIX,
+  REQEUST_FAILURE_ACTION_SUFFIX
 } from './const'
 
 export default class MessageBusProvider {
@@ -18,6 +21,8 @@ export default class MessageBusProvider {
   _pubSub = null
 
   _messageQueue = []
+
+  _pendingRequests = {}
 
   constructor (window, targetContext) {
     if (!targetContext) {
@@ -82,6 +87,7 @@ export default class MessageBusProvider {
 
     this._setChannel(ports[0])
     this._attachChannelListener(ports[0])
+    this._listenForRequestUpdates()
   }
 
   _handleChannelMessage = ({ data: { message } = {} } = {}) => {
@@ -109,7 +115,7 @@ export default class MessageBusProvider {
 
   _handleAck = () => {
     this._channelAck = true
-    console.log('MessageBusProvider: Successfully set the messaging channel')
+    console.info('MessageBusProvider: Successfully set the messaging channel')
     this._processMessageQueue()
   }
 
@@ -129,9 +135,58 @@ export default class MessageBusProvider {
     this._channel.postMessage(createMessage(message))
   }
 
+  _listenForRequestUpdates = () => {
+    this.subscribe(this._handleRequestUpdate)
+  }
+
+  _handleRequestUpdate = (action, payload = {}) => {
+    const requestId = payload.actionProviderRequestId
+    if (!requestId) {
+      // Message that isn't the request
+      return
+    }
+
+    const request = this._pendingRequests[requestId]
+    if (!request) {
+      console.warn('MessageBusProvider: Couldn\'t find pending request with requestId from the message')
+      return
+    }
+
+    if (action === request.action + REQEUST_SUCCESS_ACTION_SUFFIX) {
+      request.success(payload.actionPayload)
+      delete this._pendingRequests[requestId]
+      return
+    }
+
+    if (action === request.action + REQEUST_FAILURE_ACTION_SUFFIX) {
+      request.failure(payload.actionPayload)
+      delete this._pendingRequests[requestId]
+      return
+    }
+
+    console.warn('MessageBusProvider: Found pending request with requestId from the message, but message action could not be recognized')
+  }
+
+  subscribe = (callback, eventType) => this._pubSub.subscribe(callback, eventType)
+
   sendMessage = (action, payload = null) => {
     this._sendMessage({ action, payload })
   }
 
-  subscribe = (callback, eventType) => this._pubSub.subscribe(callback, eventType)
+  makeRequest = (action, payload) => {
+    const actionProviderRequestId = Math.floor(Math.random() * 100000)
+    const request = {
+      action: action + REQEUST_ACTION_SUFFIX,
+      payload: {
+        actionProviderRequestId,
+        actionPayload: payload
+      }
+    }
+
+    this._sendMessage(request)
+
+    return new Promise((resolve, reject) => {
+      this._pendingRequests[actionProviderRequestId] = { action, success: resolve, failure: reject }
+    })
+  }
 }

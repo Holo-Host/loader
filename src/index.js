@@ -1,5 +1,6 @@
 import HoloResolver from './modules/resolver'
 import MessageBusProvider from './modules/message-bus/provider'
+import { REQEUST_SUCCESS_ACTION_SUFFIX, REQEUST_ACTION_SUFFIX } from './modules/message-bus/const'
 
 /**
  * hLoader is a self-initiating script that downloads hApp's UI from HoloPorts on Holo network
@@ -23,17 +24,40 @@ window.hLoader = (function () {
   const initHapp = () => {
     // Grab url of hApp
     const resolver = new HoloResolver(window.location)
-    const testCallback = (action, data) => console.log('message', action, data)
 
     resolver
       .getIframeAddress()
       .then(replaceHtml)
       .then(iframe => {
         const bus = new MessageBusProvider(window, iframe)
-        bus.sendMessage('moja wiadomosc')
-        const subscription = bus.subscribe(testCallback)
 
-        // subscription.unsub();
+        const testCallback = (action, data) => {
+          console.log('loader got message', action, data)
+
+          resolver
+            .getHost(data.actionPayload)
+            .then(
+              (host) => {
+                // Simulate successful request response
+                bus.sendMessage(
+                  'GET_HOSTS' + REQEUST_SUCCESS_ACTION_SUFFIX,
+                  {
+                    actionConsumerRequestId: data.actionConsumerRequestId,
+                    actionPayload: [host]
+                  }
+                )
+              }
+            )
+        }
+
+        const subscription = bus.subscribe(testCallback, 'GET_HOSTS' + REQEUST_ACTION_SUFFIX)
+
+        bus.makeRequest('GET_APP_ID').then(
+          (data) => console.log('successfully obtained app id from client', data),
+          (data) => console.log('failed to get app id from client', data)
+        )
+
+        // subscription.unsubscibe();
       })
   }
 

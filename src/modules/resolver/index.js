@@ -83,6 +83,8 @@ export default class HoloResolver {
 
     const _UITranche = obj.hosts
     this._UIHost = _UITranche[0]
+
+    return this._UIHost
   }
 
   /**

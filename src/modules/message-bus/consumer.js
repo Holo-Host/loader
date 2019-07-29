@@ -1,6 +1,6 @@
 import { createMessage } from './common'
 import MessageBusPubSub from './pubsub'
-import { BUS_CHANNEL_SETUP_INIT, BUS_CHANNEL_INIT_ACK } from './const'
+import { BUS_CHANNEL_SETUP_INIT, BUS_CHANNEL_INIT_ACK, REQEUST_ACTION_SUFFIX, REQEUST_SUCCESS_ACTION_SUFFIX, REQEUST_FAILURE_ACTION_SUFFIX } from './const'
 
 const DEFAULT_ORIGIN_SELECTOR = '*'
 
@@ -17,11 +17,13 @@ export default class MessageBusConsumer {
 
   _messageQueue = []
 
+  _pendingRequests = {}
+
   constructor (window) {
     this._window = window
     this._initChannel()
-    this._attachListener()
     this._setupPubSub()
+    this._attachListener()
   }
 
   _initChannel () {
@@ -37,6 +39,7 @@ export default class MessageBusConsumer {
 
   _attachListener = () => {
     this._channel.onmessage = this._handleChannelMessage
+    this._listenForRequestUpdates()
   }
 
   _setupPubSub = () => {
@@ -90,9 +93,58 @@ export default class MessageBusConsumer {
     )
   }
 
+  _listenForRequestUpdates = () => {
+    this.subscribe(this._handleRequestUpdate)
+  }
+
+  _handleRequestUpdate = (action, payload = {}) => {
+    const requestId = payload.actionConsumerRequestId
+    if (!requestId) {
+      // Message that isn't the request
+      return
+    }
+
+    const request = this._pendingRequests[requestId]
+    if (!request) {
+      console.warn('MessageBusConsumer: Couldn\'t find pending request with requestId from the message')
+      return
+    }
+
+    if (action === request.action + REQEUST_SUCCESS_ACTION_SUFFIX) {
+      request.success(payload.actionPayload)
+      delete this._pendingRequests[requestId]
+      return
+    }
+
+    if (action === request.action + REQEUST_FAILURE_ACTION_SUFFIX) {
+      request.failure(payload.actionPayload)
+      delete this._pendingRequests[requestId]
+      return
+    }
+
+    console.warn('MessageBusConsumer: Found pending request with requestId from the message, but message action could not be recognized')
+  }
+
+  subscribe = (callback, eventType) => this._pubSub.subscribe(callback, eventType)
+
   sendMessage = (action, payload = null) => {
     this._sendMessage({ action, payload })
   }
 
-  subscribe = (callback, eventType) => this._pubSub.subscribe(callback, eventType)
+  makeRequest = (action, payload) => {
+    const actionConsumerRequestId = Math.floor(Math.random() * 100000)
+    const request = {
+      action: action + REQEUST_ACTION_SUFFIX,
+      payload: {
+        actionConsumerRequestId,
+        actionPayload: payload
+      }
+    }
+
+    this._sendMessage(request)
+
+    return new Promise((resolve, reject) => {
+      this._pendingRequests[actionConsumerRequestId] = { action, success: resolve, failure: reject }
+    })
+  }
 }
