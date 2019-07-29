@@ -1,6 +1,10 @@
-const DEFAULT_ORIGIN_SELECTOR = '*'
-const INIT_BUS_CHANNEL_MESSAGE = 'INIT_MESSAGE_BUS_CHANNEL'
-const ALL_EVENTS = Symbol('All events')
+import { createMessage } from './common'
+import MessageBusPubSub from './pubsub'
+import {
+  BUS_CHANNEL_SETUP_INIT,
+  BUS_CHANNEL_RESET,
+  BUS_CHANNEL_INIT_ACK
+} from './const'
 
 export default class MessageBusProvider {
   _window = null
@@ -9,7 +13,9 @@ export default class MessageBusProvider {
 
   _channel = null
 
-  _subscribers = []
+  _channelAck = false
+
+  _pubSub = null
 
   constructor (window, targetContext) {
     if (!targetContext) {
@@ -18,71 +24,77 @@ export default class MessageBusProvider {
 
     this._window = window
     this._targetContext = targetContext
-    this._attachListener()
-    // targetContext.contentWindow.document.msgBus = 'abc';
+    this._attachGlobalListener()
   }
 
-  _attachListener = () => {
+  _attachGlobalListener = () => {
     this._window.addEventListener('message', this._handleGlobalMessage)
   }
 
+  _sendMessage = (action, payload = null) => {
+    if (!this._channel) {
+      return
+    }
+
+    this._channel.postMessage(createMessage({ action, payload }))
+  }
+
   _setChannel = channel => {
+    this._channelAck = false
+
     if (!channel.postMessage) {
       throw Error('Expected channel to provide postMessage API')
     }
 
     this._channel = channel
+    this._channel.postMessage(createMessage(BUS_CHANNEL_INIT_ACK))
   }
 
-  _sendMessage = (action, payload) => {
-    if (!this._channel) {
+  _attachChannelListener = channel => {
+    channel.onmessage = this._handleChannelMessage
+  }
+
+  _setupPubSub = () => {
+    if (this._pubSub) {
+      // Publish RESET event, so that MessageBus user can be aware of the event
+      // and abort it's actions if necessary (eg. sending sensitive data
+      // to wrong consumer/app)
+      this._pubSub.publish(BUS_CHANNEL_RESET)
       return
     }
-    console.log('sending')
-    this._channel.postMessage({ action, payload })
+
+    this._pubSub = new MessageBusPubSub()
   }
 
-  _handleGlobalMessage = ({ origin, source, data, ports } = {}) => {
-    console.log('provider got global message', data, ports)
-    if (data === INIT_BUS_CHANNEL_MESSAGE && ports) {
-      console.log('setting up the channel', ports[0])
-      this._setChannel(ports[0])
-      ports[0].onmessage = this._handleMessage
-    }
-  }
-
-  _handleMessage = ({ origin, source, data, ports } = {}) => {
-    // TODO: Origin checking
-    this._subscribers.forEach(({ callback, eventTypes }) => {
-      if (eventTypes === ALL_EVENTS || eventTypes.includes(data.action)) {
-        console.log('calling the callback', data)
-        // callback(action, data);
-      }
-    })
-  }
-
-  _unsubscribe = subscription => {
-    this._subscribers = this._subscribers.filter(
-      subscriber => subscriber !== subscription
-    )
-  }
-
-  subscribe = (callback, eventTypes = ALL_EVENTS) => {
-    if (typeof callback !== 'function') {
-      throw Error(
-        'MessageBusProvider.subscribe expects callback function as a first argument'
-      )
+  _handleGlobalMessage = ({ source, data, ports } = {}) => {
+    if (
+      // Message from foreign context - ignore
+      source !== this._targetContext.contentWindow ||
+      // Unsupported action
+      data.message !== BUS_CHANNEL_SETUP_INIT ||
+      // Expect message channel to be passed via ports
+      !ports
+    ) {
+      return
     }
 
-    // TODO: Refactor data stucture, so that we don't have to iterate over each
-    // subscription on every event
-    const subscription = {
-      eventTypes,
-      callback
+    this._setChannel(ports[0])
+    this._setupPubSub()
+    this._attachChannelListener(ports[0])
+  }
+
+  _handleChannelMessage = ({ data: { message } = {} } = {}) => {
+    if (message === BUS_CHANNEL_INIT_ACK) {
+      this._channelAck = true
+      console.log('MessageBusProvider: Successfully set the messaging channel')
+      return
     }
 
-    this._subscribers.push(subscription)
+    if (!message.action) {
+      console.warn('MessageBus received malformed message')
+      return
+    }
 
-    return () => this._unsubscribe(subscription)
+    this._pubSub.publish(message.action, message.payload)
   }
 }

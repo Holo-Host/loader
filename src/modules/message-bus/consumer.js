@@ -1,5 +1,7 @@
+import { BUS_CHANNEL_SETUP_INIT, BUS_CHANNEL_INIT_ACK } from './const'
+import { createMessage } from './common'
+
 const DEFAULT_ORIGIN_SELECTOR = '*'
-const INIT_BUS_CHANNEL_MESSAGE = 'INIT_MESSAGE_BUS_CHANNEL'
 
 export default class MessageBusConsumer {
   _subscribers = []
@@ -7,6 +9,10 @@ export default class MessageBusConsumer {
   _window = null
 
   _channel = null
+
+  _channelAck = false
+
+  _ackTimeout = null
 
   constructor (window) {
     this._window = window
@@ -16,25 +22,41 @@ export default class MessageBusConsumer {
 
   _initChannel () {
     const channel = new MessageChannel()
-    this._channel = channel
+    this._channel = channel.port1
 
-    this._window.top.postMessage(INIT_BUS_CHANNEL_MESSAGE, DEFAULT_ORIGIN_SELECTOR, [
-      channel.port2
-    ])
-    channel.port1.postMessage('test message from consumer')
+    this._window.top.postMessage(
+      createMessage(BUS_CHANNEL_SETUP_INIT),
+      DEFAULT_ORIGIN_SELECTOR,
+      [channel.port2]
+    )
   }
 
   _attachListener = () => {
-    this._channel.port1.onmessage = this._handleMessage
+    this._channel.onmessage = this._handleChannelMessage
   }
 
-  _handleMessage = ({ origin, source, data } = {}) => {
-    console.log('consumer got message', data)
+  _handleChannelMessage = ({ data: { message } = {} } = {}) => {
+    if (!message) {
+      return
+    }
+
+    if (message === BUS_CHANNEL_INIT_ACK) {
+      this._handleAck()
+    }
+
+    if (!this._channelAck) {
+      console.warn('MessageBusConsumer got message on the channel before the connection was acknowledged')
+    }
   }
 
-  subscibe () {}
+  _handleAck = () => {
+    this._channelAck = true
+    this._channel.postMessage(createMessage(BUS_CHANNEL_INIT_ACK))
+  }
 
-  request () {
-    return Promise()
+  _sendMessage = (action, payload) => {
+    this._channel.postMessage(
+      createMessage({ action, payload })
+    )
   }
 }
