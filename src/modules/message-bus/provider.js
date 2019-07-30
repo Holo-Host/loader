@@ -91,10 +91,6 @@ export default class MessageBusProvider {
   }
 
   _handleChannelMessage = ({ data: { message } = {} } = {}) => {
-    if (!message) {
-      return
-    }
-
     if (message === BUS_CHANNEL_INIT_ACK) {
       this._handleAck()
       return
@@ -105,7 +101,7 @@ export default class MessageBusProvider {
       return
     }
 
-    if (!message.action) {
+    if (!message || !message.action) {
       console.warn('MessageBus received malformed message')
       return
     }
