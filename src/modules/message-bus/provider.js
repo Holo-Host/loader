@@ -25,6 +25,10 @@ export default class MessageBusProvider {
   _pendingRequests = {}
 
   constructor (window, targetContext) {
+    if (!window) {
+      throw Error('Need to specify targetContext MessageBus will send messages to')
+    }
+
     if (!targetContext) {
       throw Error('Need to specify targetContext MessageBus will send messages to')
     }
@@ -83,6 +87,7 @@ export default class MessageBusProvider {
 
     if (this._channelAck) {
       this._resetPubSub()
+      this._clearMessageQueue()
     }
 
     this._setChannel(ports[0])
@@ -124,6 +129,12 @@ export default class MessageBusProvider {
       const message = this._messageQueue.shift()
       this._sendMessage(message)
     }
+  }
+
+  _clearMessageQueue = () => {
+    // Used for clearing the queue when the channel is being reset - don't leak any
+    // messages to wrong consumer
+    this._messageQueue = []
   }
 
   _sendMessage = (message) => {
