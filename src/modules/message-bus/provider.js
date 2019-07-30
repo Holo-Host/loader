@@ -1,4 +1,4 @@
-import { createMessage } from './common'
+import { createMessage, requiredField } from './common'
 import MessageBusPubSub from './pubsub'
 import {
   BUS_CHANNEL_SETUP_INIT,
@@ -24,15 +24,10 @@ export default class MessageBusProvider {
 
   _pendingRequests = {}
 
-  constructor (window, targetContext) {
-    if (!window) {
-      throw Error('Need to specify targetContext MessageBus will send messages to')
-    }
-
-    if (!targetContext) {
-      throw Error('Need to specify targetContext MessageBus will send messages to')
-    }
-
+  constructor (
+    window = requiredField('Need to specify window context MessageBus will listen to messages on'),
+    targetContext = requiredField('Need to specify targetContext MessageBus will send messages to')
+  ) {
     this._window = window
     this._targetContext = targetContext
     this._attachGlobalListener()
