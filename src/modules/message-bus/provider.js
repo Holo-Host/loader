@@ -68,12 +68,12 @@ export default class MessageBusProvider {
     this._pubSub.publish(BUS_CHANNEL_RESET)
   }
 
-  _handleGlobalMessage = ({ source, data, ports } = {}) => {
+  _handleGlobalMessage = ({ source, data: { message } = {}, ports } = {}) => {
     if (
       // Message from foreign context - ignore
       source !== this._targetContext.contentWindow ||
       // Unsupported action
-      data.message !== BUS_CHANNEL_SETUP_INIT ||
+      message !== BUS_CHANNEL_SETUP_INIT ||
       // Expect message channel to be passed via ports
       !ports
     ) {
