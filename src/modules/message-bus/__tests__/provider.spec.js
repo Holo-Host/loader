@@ -1,18 +1,14 @@
 import MessageBusProvider from '../provider'
 import MessageBusPubSub from '../pubsub'
 import { BUS_CHANNEL_SETUP_INIT, BUS_CHANNEL_INIT_ACK } from '../const'
+import { createMessage } from '../common';
+
+jest.spyOn(global.console, 'warn').mockImplementation(() => jest.fn())
 
 const mockPubSubPublish = jest.fn()
 jest.mock('../pubsub', () => {
-  return jest.fn().mockImplementation(() => {
+  return jest.fn(() => {
     return { publish: mockPubSubPublish }
-  })
-})
-
-const mockCreateMessage = jest.fn((msg) => msg)
-jest.mock('../common', () => {
-  return jest.fn().mockImplementation(() => {
-    return { createMessage: mockCreateMessage }
   })
 })
 
@@ -311,5 +307,49 @@ describe('MessageBusProvider', () => {
 
     })
   })
+
+  describe('_sendMessage', () => {
+    it('should queue the message if the channel is not acknowledged yet', () => {
+      const message = Symbol('some message')
+      const bus = new MessageBusProvider(window, {})
+      bus._channelAck = false
+
+      bus._sendMessage(message)
+
+      expect(bus._messageQueue).toContain(message)
+    })
+
+    it('should not send the message if the channel is not acknowledged yet', () => {
+      const bus = new MessageBusProvider(window, {})
+      bus._channel = { postMessage: jest.fn() }
+      bus._channelAck = false
+
+      bus._sendMessage(Symbol('some message'))
+
+      expect(bus._channel.postMessage).not.toBeCalled()
+    })
+
+    it('should send a message on the channel', () => {
+      const bus = new MessageBusProvider(window, {})
+      bus._channel = { postMessage: jest.fn() }
+      bus._channelAck = true
+
+      bus._sendMessage(Symbol('some message'))
+
+      expect(bus._channel.postMessage).toBeCalled()
+    })
+
+    it('should wrap sent message in additional metadata format', () => {
+      const message = Symbol('some message')
+      const bus = new MessageBusProvider(window, {})
+      bus._channel = { postMessage: jest.fn() }
+      bus._channelAck = true
+
+      bus._sendMessage(message)
+
+      expect(bus._channel.postMessage).toBeCalledWith(createMessage(message))
+    })
+  })
+
 
 })
