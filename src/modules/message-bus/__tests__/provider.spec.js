@@ -1,7 +1,7 @@
 import MessageBusProvider from '../provider'
 import MessageBusPubSub from '../pubsub'
-import { BUS_CHANNEL_SETUP_INIT, BUS_CHANNEL_INIT_ACK } from '../const'
-import { createMessage } from '../common';
+import { BUS_CHANNEL_SETUP_INIT, BUS_CHANNEL_INIT_ACK, REQEUST_SUCCESS_ACTION_SUFFIX, REQEUST_FAILURE_ACTION_SUFFIX, REQEUST_ACTION_SUFFIX } from '../const'
+import { createMessage } from '../common'
 
 jest.spyOn(global.console, 'warn').mockImplementation(() => jest.fn())
 
@@ -203,7 +203,6 @@ describe('MessageBusProvider', () => {
       }).not.toThrow()
     })
 
-
     it('should handle channel acknowledgement on BUS_CHANNEL_INIT_ACK message', () => {
       bus._handleChannelMessage({
         data: {
@@ -351,5 +350,109 @@ describe('MessageBusProvider', () => {
     })
   })
 
+  describe('_handleRequestUpdate', () => {
+    it('should ignore messages with request that is not registered as pending', () => {
+      const payload = { actionProviderRequestId: 123 }
+      const bus = new MessageBusProvider(window, {})
 
+      expect(() => {
+        bus._handleRequestUpdate('some-action', payload)
+      }).not.toThrow()
+    })
+
+    it('should call success callback if action matches pending request action with success flag', () => {
+      const action = 'some-action'
+      const actionPayload = Symbol('some payload')
+      const payload = {
+        actionProviderRequestId: 123,
+        actionPayload
+      }
+      const successSpy = jest.fn()
+      const bus = new MessageBusProvider(window, {})
+      bus._pendingRequests[123] = {
+        action,
+        success: successSpy
+      }
+
+      bus._handleRequestUpdate(action + REQEUST_SUCCESS_ACTION_SUFFIX, payload)
+
+      expect(successSpy).toBeCalledWith(actionPayload)
+    })
+
+    it('should call failure callback if action matches pending request action with failure flag', () => {
+      const action = 'some-action'
+      const actionPayload = Symbol('some payload')
+      const payload = {
+        actionProviderRequestId: 123,
+        actionPayload
+      }
+      const failureSpy = jest.fn()
+      const bus = new MessageBusProvider(window, {})
+      bus._pendingRequests[123] = {
+        action,
+        failure: failureSpy
+      }
+
+      bus._handleRequestUpdate(action + REQEUST_FAILURE_ACTION_SUFFIX, payload)
+
+      expect(failureSpy).toBeCalledWith(actionPayload)
+    })
+  })
+
+  describe('makeRequest', () => {
+    it('should send a message with request', () => {
+      const sendMessageSpy = jest.fn()
+      const bus = new MessageBusProvider(window, {})
+      bus._sendMessage = sendMessageSpy
+
+      bus.makeRequest('some-action')
+
+      expect(sendMessageSpy).toBeCalled()
+    })
+
+    it('should rewrite action in request model', () => {
+      const action = 'some-action'
+      const payload = Symbol('some payload')
+      const sendMessageSpy = jest.fn()
+      const bus = new MessageBusProvider(window, {})
+      bus._sendMessage = sendMessageSpy
+
+      bus.makeRequest(action, payload)
+
+      expect(sendMessageSpy).toBeCalledWith(
+        expect.objectContaining({
+          action: action + REQEUST_ACTION_SUFFIX,
+          payload: expect.objectContaining({
+            actionPayload: payload
+          })
+        })
+      )
+    })
+
+    it('should provide random request id', () => {
+      const sendMessageSpy = jest.fn()
+      const bus = new MessageBusProvider(window, {})
+      bus._sendMessage = sendMessageSpy
+
+      bus.makeRequest('some-action')
+
+      expect(sendMessageSpy).toBeCalledWith(
+        expect.objectContaining({
+          payload: expect.objectContaining({
+            actionProviderRequestId: expect.any(Number)
+          })
+        })
+      )
+    })
+
+    it('should return Promise', () => {
+      const action = 'some-action'
+      const payload = Symbol('some payload')
+      const bus = new MessageBusProvider(window, {})
+
+      const request = bus.makeRequest(action, payload)
+
+      expect(request).toEqual(expect.any(Promise))
+    })
+  })
 })

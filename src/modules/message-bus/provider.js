@@ -175,7 +175,7 @@ export default class MessageBusProvider {
     this._sendMessage({ action, payload })
   }
 
-  makeRequest = (action, payload) => {
+  makeRequest = (action, payload = {}) => {
     const actionProviderRequestId = Math.floor(Math.random() * 100000)
     const request = {
       action: action + REQEUST_ACTION_SUFFIX,
