@@ -1,26 +1,44 @@
 version: 2.1
 
 commands:
-  test-nodejs:
+  prepare-env:
     steps:
-      - run:
-          name: NPM Versions
-          command: npm version
       - checkout
       - restore_cache:
           keys:
             - v{{ .Environment.CIRCLE_CACHE_VERSION }}-{{ arch }}-npm-cache-{{ .Branch }}-{{ .Environment.CIRCLE_JOB }}
             - v{{ .Environment.CIRCLE_CACHE_VERSION }}-{{ arch }}-npm-cache-master-{{ .Environment.CIRCLE_JOB }}
+  prepare-lint:
+    steps:
+      - run:
+          name: Install standard linter
+          command: npm i standard
+  setup-nodejs:
+    steps:
+      - prepare-env
+      - run:
+          name: NPM Versions
+          command: npm version
       - run:
           name: Install dependencies
           command: npm ci
       - run:
           name: Webpack build
           command: npm run build
+      - save-npm-cache
+  run-tests:
+    steps:
+      - setup-nodejs
       - run:
           name: Test
           command: npm test
-      - save-npm-cache
+  run-lint:
+    steps:
+      - prepare-env
+      - prepare-lint
+      - run:
+          name: Lint
+          command: npm run test:lint
   save-npm-cache:
     steps:
       - save_cache:
@@ -29,13 +47,19 @@ commands:
             - ~/.npm/_cacache
 
 jobs:
-  node-v10:
+  test-node-v10:
     docker:
       - image: node:10
     steps:
-      - test-nodejs
+      - run-tests
+  lint-node-v10:
+    docker:
+      - image: node:10
+    steps:
+      - run-lint
 
 workflows:
-  unit-test:
+  test:
     jobs:
-      - node-v10
+      - test-node-v10
+      - lint-node-v10
